@@ -79,14 +79,13 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 /* A literal integer is is a number beginning with a number between
    one and nine followed by zero or more numbers between zero and nine
    or just a zero.  */
-digit = [0-9]
-number = {digit}+
+NUM = [0-9]+
    
 /* A identifier integer is a word beginning a letter between A and
    Z, a and z, or an underscore followed by zero or more letters
    between A and Z, a and z, zero and nine, or an underscore. */
-letter = [a-zA-Z]
-identifier = {letter}+
+ID = [_a-zA-Z][_a-zA-Z0-9]*
+CCOMMENTS = [\/\*(\*(?!\/)|[^*])*\*\/]
    
 %%
 /* ------------------------Lexical Rules Section---------------------- */
@@ -97,26 +96,32 @@ identifier = {letter}+
    regular expression. */
    
 "if"               { return symbol(sym.IF); }
-"then"             { return symbol(sym.THEN); }
 "else"             { return symbol(sym.ELSE); }
-"end"              { return symbol(sym.END); }
-"repeat"           { return symbol(sym.REPEAT); }
-"until"            { return symbol(sym.UNTIL); }
-"read"             { return symbol(sym.READ); }
-"write"            { return symbol(sym.WRITE); }
-":="               { return symbol(sym.ASSIGN); }
-"="                { return symbol(sym.EQ); }
-"<"                { return symbol(sym.LT); }
-">"                { return symbol(sym.GT); }
+"int"              { return symbol(sym.INT); }
+"return"           { return symbol(sym.RETURN); }
+"void"             { return symbol(sym.VOID); }
+"while"            { return symbol(sym.WHILE); }
 "+"                { return symbol(sym.PLUS); }
 "-"                { return symbol(sym.MINUS); }
-"*"                { return symbol(sym.TIMES); }
-"/"                { return symbol(sym.OVER); }
+"*"                { return symbol(sym.MULTIPLY); }
+"/"                { return symbol(sym.DIVIDE); }
+"<"                { return symbol(sym.LESSTHAN); }
+"<="               { return symbol(sym.LESSTHANEQUAL); }
+">"                { return symbol(sym.GREATERTHAN); }
+">="                { return symbol(sym.GREATERTHANEQUAL); }
+"="                { return symbol(sym.EQUALEQUAL); }
+"!="                { return symbol(sym.NOTEQUAL); }
+"="                { return symbol(sym.EQUAL); }
+";"                { return symbol(sym.SEMI); }
+","                { return symbol(sym.COMMA); }
 "("                { return symbol(sym.LPAREN); }
 ")"                { return symbol(sym.RPAREN); }
-";"                { return symbol(sym.SEMI); }
-{number}           { return symbol(sym.NUM, yytext()); }
-{identifier}       { return symbol(sym.ID, yytext()); }
+"["                { return symbol(sym.SQLPAREN); }
+"]"                { return symbol(sym.SQRPAREN); }
+"{"                { return symbol(sym.CRLPAREN); }
+"}"                { return symbol(sym.CRRPAREN); }
+{ID}               { return symbol(sym.NUM, yytext()); }
+{NUM}              { return symbol(sym.ID, yytext()); }
 {WhiteSpace}+      { /* skip whitespace */ }   
-"{"[^\}]*"}"       { /* skip comments */ }
+{CCOMMENTS}        { /* skip whitespace */ }
 .                  { return symbol(sym.ERROR); }

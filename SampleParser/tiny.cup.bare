@@ -71,9 +71,10 @@ parser code {:
    
 /* ------------Declaration of Terminals and Non Terminals Section----------- */
    
-terminal IF, THEN, ELSE, END, REPEAT, UNTIL, READ, WRITE;
-terminal ASSIGN, EQ, LT, GT, PLUS, MINUS, TIMES, OVER, LPAREN, RPAREN, SEMI;
-terminal ID, NUM;
+terminal IF, ELSE, INT, RETURN, VOID, WHILE;
+terminal PLUS, MINUS, MULTIPLY, DIVIDE, LESSTHAN, LESSTHANEQUAL, GREATERTHAN, GREATERTHANEQUAL;
+terminal EQUALEQUAL, NOTEQUAL, EQUAL, SEMI, COMMA, LPAREN, RPAREN, SQLPAREN, SQRPAREN, CRLPAREN, CRRPAREN;
+terminal String ID, NUM;
 terminal ERROR;
    
 non terminal program;
