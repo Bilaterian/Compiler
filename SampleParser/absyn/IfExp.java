@@ -2,19 +2,18 @@ package absyn;
 
 public class IfExp extends Exp {
   public Exp test;
-  public Exp then;
+  public Exp thenpart;
   public Exp elsepart;
 
-  public IfExp( int row, int col, Exp test, Exp then, Exp elsepart) {
-	this.row = row;
-	this.col = col;
+  public IfExp(int row, int col, Exp test, Exp thenpart, Exp elsepart) {
+    this.row = row;
+    this.col = col;
     this.test = test;
-    this.then = then;
+    this.thenpart = thenpart;
     this.elsepart = elsepart;
   }
 
-  public void accept( AbsynVisitor visitor, int level ) {
-    visitor.visit( this, level );
+  public void accept(AbsynVisitor visitor, int level) {
+    visitor.visit(this, level);
   }
 }
-

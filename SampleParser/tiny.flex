@@ -120,8 +120,8 @@ CCOMMENTS = [\/\*(\*(?!\/)|[^*])*\*\/]
 "]"                { return symbol(sym.SQRPAREN); }
 "{"                { return symbol(sym.CRLPAREN); }
 "}"                { return symbol(sym.CRRPAREN); }
-{ID}               { return symbol(sym.NUM, yytext()); }
-{NUM}              { return symbol(sym.ID, yytext()); }
+{ID}               { return symbol(sym.ID, yytext()); }
+{NUM}              { return symbol(sym.NUM, yytext()); }
 {WhiteSpace}+      { /* skip whitespace */ }   
 {CCOMMENTS}        { /* skip whitespace */ }
 .                  { return symbol(sym.ERROR); }

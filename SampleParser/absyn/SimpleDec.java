@@ -1,14 +1,13 @@
 package absyn;
 
-public class IndexVar extends Var {
+public class SimpleDec extends VarDec {
 	public String name;
-	public Exp index;
 
-	public IndexVar(int row, int col, String name, Exp index) {
+	public SimpleDec(int row, int col, NameTy typ, String name) {
 		this.row = row;
 		this.col = col;
+		this.typ = typ;
 		this.name = name;
-		this.index = index;
 	}
 
 	public void accept(AbsynVisitor visitor, int level) {
