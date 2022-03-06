@@ -36,4 +36,8 @@ public interface AbsynVisitor {
 
   public void visit(CallExp callExp, int level);
 
+  public void visit(SimpleDec simpleDec, int level);
+
+  public void visit(ArrayDec arrayDec, int level);
+
 }
