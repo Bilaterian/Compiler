@@ -78,62 +78,62 @@ terminal String ID, NUM;
 terminal ERROR;
    
 non terminal Exp program;
-non terminal ExpList declaration-list, param-list, statement-list, arg-list;
-non terminal Exp declaration, var-declaration, fun-declaration, type-specifier, local-declarations;
-non terminal Exp compound-stmt, expression-stmt, selection-stmt, iteration-stmt, return-stmt;
-non terminal Exp simple-expression, additive-expression;
+non terminal ExpList declaratoinlist, paramlist, statementlist, arglist;
+non terminal Exp declaration, vardeclaration, fundeclaration, typespecifier, localdeclarations;
+non terminal Exp compoundstmt, expressionstmt, selectionstmt, iterationstmt, returnstmt;
+non terminal Exp simpleexpression, additiveexpression;
 non terminal Exp params, param, statement, expression, var, relop, addop, term, mulop, factor, call, args;
 
 /* ----------------------------Grammar Section-------------------- */
    
 start with program;
 
-program				::= declaration-list ;
+program				::= declaratoinlist ;
 
-declaration-list	::= declaration-list declaration | declaration ;
+declaratoinlist	::= declaratoinlist declaration | declaration ;
 
-declaration			::= var-declaration | fun-declaration ;
+declaration			::= vardeclaration | fundeclaration ;
 
-var-declaration		::= type-specifier ID SEMI | type-specifier ID SQLPAREN NUM SQRPAREN SEMI ;
+vardeclaration		::= typespecifier ID SEMI | typespecifier ID SQLPAREN NUM SQRPAREN SEMI ;
 
-type-specifier		::= INT | VOID ;
+typespecifier		::= INT | VOID ;
 
-fun-declaration		::= type-specifier ID LPAREN params RPAREN compound-stmt ;
+fundeclaration		::= typespecifier ID LPAREN params RPAREN compoundstmt ;
 
-params				::= param-list | VOID ;
+params				::= paramlist | VOID ;
 
-param-list			::= param-list COMMA param | param ;
+paramlist			::= paramlist COMMA param | param ;
 
-param				::= type-specifier ID type-specifier ID SQLPAREN SQRPAREN ;
+param				::= typespecifier ID typespecifier ID SQLPAREN SQRPAREN ;
 
-compound-stmt		::= CRLPAREN local-declarations statement-list CRRPAREN ;
+compoundstmt		::= CRLPAREN localdeclarations statementlist CRRPAREN ;
 
-local-declarations	::= local-declarations var-declaration | ;
+localdeclarations	::= localdeclarations vardeclaration | ;
 
-statement-list		::= statement-list statement | ;
+statementlist		::= statementlist statement | ;
 
-statement			::= expression-stmt
-					  | compound-stmt
-					  | selection-stmt
-					  | iteration-stmt
-					  | return-stmt
+statement			::= expressionstmt
+					  | compoundstmt
+					  | selectionstmt
+					  | iterationstmt
+					  | returnstmt
 					  ;
 
-expression-stmt		::= expression SEMI | SEMI ;
+expressionstmt		::= expression SEMI | SEMI ;
 
-selection-stmt      ::= IF LPAREN expression RPAREN statement
-					  | IF LPAREN expression RPAREN statement ELSE statement
-					  ;
+selectionstmt      ::= IF LPAREN expression RPAREN statement
+					 | IF LPAREN expression RPAREN statement ELSE statement
+					 ;
 
-iteration-stmt		::= WHILE LPAREN expression RPAREN statement ;
+iterationstmt		::= WHILE LPAREN expression RPAREN statement ;
 
-return-stmt			::= RETURN expression SEMI | RETURN SEMI ;
+returnstmt			::= RETURN expression SEMI | RETURN SEMI ;
 
-expression			::= var EQUAL expression SEMI | simple-expression ;
+expression			::= var EQUAL expression SEMI | simpleexpression ;
 
 var					::= ID | ID SQLPAREN expression SQRPAREN ;
 
-simple-expression	::= additive-expression relop additive-expression | additive-expression ;
+simpleexpression	::= additiveexpression relop additiveexpression | additiveexpression ;
 
 relop				::= LESSTHANEQUAL 
 					  | LESSTHAN 
@@ -143,7 +143,7 @@ relop				::= LESSTHANEQUAL
 					  | NOTEQUAL
 					  ;
 
-additive-expression	::= additive-expression addop term | term ;
+additiveexpression	::= additiveexpression addop term | term ;
 
 addop				::= PLUS | MINUS ;
 
@@ -159,7 +159,7 @@ factor				::= LPAREN expression RPAREN
 
 call				::= ID LPAREN args RPAREN ;
 
-args				::= arg-list | ;
+args				::= arglist | ;
 
-arg-list			::= arg-list COMMA expression | expression ;
+arglist			::= arglist COMMA expression | expression ;
 
