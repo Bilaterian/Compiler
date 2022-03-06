@@ -78,7 +78,7 @@ terminal String ID, NUM;
 terminal ERROR;
    
 non terminal Exp program;
-non terminal ExpList declaratoinlist, paramlist, statementlist, arglist;
+non terminal ExpList declarationlist, paramlist, statementlist, arglist;
 non terminal Exp declaration, vardeclaration, fundeclaration, typespecifier, localdeclarations;
 non terminal Exp compoundstmt, expressionstmt, selectionstmt, iterationstmt, returnstmt;
 non terminal Exp simpleexpression, additiveexpression;
@@ -88,29 +88,39 @@ non terminal Exp params, param, statement, expression, var, relop, addop, term, 
    
 start with program;
 
-program				::= declaratoinlist ;
+program				::= declarationlist:dl
+						{: RESULT = dl; :}
+					  ;
 
-declaratoinlist	::= declaratoinlist declaration | declaration ;
+declarationlist		::= declarationlist declaration 
+					  | declaration ;
 
-declaration			::= vardeclaration | fundeclaration ;
+declaration			::= vardeclaration 
+					  | fundeclaration ;
 
-vardeclaration		::= typespecifier ID SEMI | typespecifier ID SQLPAREN NUM SQRPAREN SEMI ;
+vardeclaration		::= typespecifier ID SEMI 
+					  | typespecifier ID SQLPAREN NUM SQRPAREN SEMI ;
 
-typespecifier		::= INT | VOID ;
+typespecifier		::= INT 
+					  | VOID ;
 
 fundeclaration		::= typespecifier ID LPAREN params RPAREN compoundstmt ;
 
-params				::= paramlist | VOID ;
+params				::= paramlist 
+					  | VOID ;
 
-paramlist			::= paramlist COMMA param | param ;
+paramlist			::= paramlist COMMA param 
+					  | param ;
 
 param				::= typespecifier ID typespecifier ID SQLPAREN SQRPAREN ;
 
 compoundstmt		::= CRLPAREN localdeclarations statementlist CRRPAREN ;
 
-localdeclarations	::= localdeclarations vardeclaration | ;
+localdeclarations	::= localdeclarations vardeclaration 
+					  | ;
 
-statementlist		::= statementlist statement | ;
+statementlist		::= statementlist statement 
+					  | ;
 
 statement			::= expressionstmt
 					  | compoundstmt
@@ -119,7 +129,8 @@ statement			::= expressionstmt
 					  | returnstmt
 					  ;
 
-expressionstmt		::= expression SEMI | SEMI ;
+expressionstmt		::= expression SEMI 
+					  | SEMI ;
 
 selectionstmt      ::= IF LPAREN expression RPAREN statement
 					 | IF LPAREN expression RPAREN statement ELSE statement
@@ -127,13 +138,17 @@ selectionstmt      ::= IF LPAREN expression RPAREN statement
 
 iterationstmt		::= WHILE LPAREN expression RPAREN statement ;
 
-returnstmt			::= RETURN expression SEMI | RETURN SEMI ;
+returnstmt			::= RETURN expression SEMI 
+					  | RETURN SEMI ;
 
-expression			::= var EQUAL expression SEMI | simpleexpression ;
+expression			::= var EQUAL expression SEMI 
+					  | simpleexpression ;
 
-var					::= ID | ID SQLPAREN expression SQRPAREN ;
+var					::= ID 
+					  | ID SQLPAREN expression SQRPAREN ;
 
-simpleexpression	::= additiveexpression relop additiveexpression | additiveexpression ;
+simpleexpression	::= additiveexpression relop additiveexpression 
+					  | additiveexpression ;
 
 relop				::= LESSTHANEQUAL 
 					  | LESSTHAN 
@@ -145,11 +160,14 @@ relop				::= LESSTHANEQUAL
 
 additiveexpression	::= additiveexpression addop term | term ;
 
-addop				::= PLUS | MINUS ;
+addop				::= PLUS 
+					  | MINUS ;
 
-term				::= term mulop factor | factor ;
+term				::= term mulop factor 
+					  | factor ;
 
-mulop				::= MULTIPLY | DIVIDE ;
+mulop				::= MULTIPLY 
+					  | DIVIDE ;
 
 factor				::= LPAREN expression RPAREN 
 					  | var 
@@ -159,7 +177,9 @@ factor				::= LPAREN expression RPAREN
 
 call				::= ID LPAREN args RPAREN ;
 
-args				::= arglist | ;
+args				::= arglist 
+					  | ;
 
-arglist			::= arglist COMMA expression | expression ;
+arglist				::= arglist COMMA expression 
+					  | expression ;
 
