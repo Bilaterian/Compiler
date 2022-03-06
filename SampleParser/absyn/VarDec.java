@@ -1,5 +1,5 @@
-package.absyn;
+package absyn;
 
-abstract public class VarDec extends Dec{
+abstract public class VarDec extends Dec {
     public NameTy typ;
 }
