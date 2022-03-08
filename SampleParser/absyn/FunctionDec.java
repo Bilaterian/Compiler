@@ -6,10 +6,10 @@ abstract public class FunctionDec extends Dec {
     public VarDecList params;
     public CompoundExp body;
 
-    public FunctionDec(int row, int col, NameTy rsult, String func, VarDecList params, CompoundExp body) {
+    public FunctionDec(int row, int col, NameTy result, String func, VarDecList params, CompoundExp body) {
         this.row = row;
         this.col = col;
-        this.result = rsult;
+        this.result = result;
         this.func = func;
         this.params = params;
         this.body = body;
