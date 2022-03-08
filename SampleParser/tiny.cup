@@ -74,83 +74,164 @@ parser code {:
 terminal IF, ELSE, INT, RETURN, VOID, WHILE;
 terminal PLUS, MINUS, MULTIPLY, DIVIDE, LESSTHAN, LESSTHANEQUAL, GREATERTHAN, GREATERTHANEQUAL;
 terminal EQUALEQUAL, NOTEQUAL, EQUAL, SEMI, COMMA, LPAREN, RPAREN, SQLPAREN, SQRPAREN, CRLPAREN, CRRPAREN;
-terminal String ID, NUM;
+terminal String ID;
+terminal int NUM;
 terminal ERROR;
-   
-non terminal Exp program;
-non terminal ExpList declarationlist, paramlist, statementlist, arglist;
-non terminal Exp declaration, vardeclaration, fundeclaration, typespecifier, localdeclarations;
-non terminal Exp compoundstmt, expressionstmt, selectionstmt, iterationstmt, returnstmt;
+
+non terminal ExpList statementlist, arglist, args;
+non terminal Exp expressionstmt, selectionstmt, iterationstmt, returnstmt;
 non terminal Exp simpleexpression, additiveexpression;
-non terminal Exp params, param, statement, expression, var, relop, addop, term, mulop, factor, call, args;
+non terminal Exp statement, expression, relop, addop, term, mulop, factor, call;
+non terminal NameTy typespecifier;
+non terminal Dec declaration, vardeclaration, fundeclaration;
+non terminal DecList declarationlist, program;
+non terminal Var var;
+non terminal VarDecList params, localdeclarations, paramlist;
+non terminal VarDec param;
+non terminal CompoundExp compoundstmt;
 
 /* ----------------------------Grammar Section-------------------- */
    
 start with program;
 
-program				::= declarationlist:dl
+program				::= declarationlist:dl 
 						{: RESULT = dl; :}
 					  ;
 
-declarationlist		::= declarationlist declaration 
-					  | declaration ;
-
-declaration			::= vardeclaration 
-					  | fundeclaration ;
-
-vardeclaration		::= typespecifier ID SEMI 
-					  | typespecifier ID SQLPAREN NUM SQRPAREN SEMI ;
-
-typespecifier		::= INT 
-					  | VOID ;
-
-fundeclaration		::= typespecifier ID LPAREN params RPAREN compoundstmt ;
-
-params				::= paramlist 
-					  | VOID ;
-
-paramlist			::= paramlist COMMA param 
-					  | param ;
-
-param				::= typespecifier ID typespecifier ID SQLPAREN SQRPAREN ;
-
-compoundstmt		::= CRLPAREN localdeclarations statementlist CRRPAREN ;
-
-localdeclarations	::= localdeclarations vardeclaration 
-					  | ;
-
-statementlist		::= statementlist statement 
-					  | ;
-
-statement			::= expressionstmt
-					  | compoundstmt
-					  | selectionstmt
-					  | iterationstmt
-					  | returnstmt
+declarationlist		::= declarationlist:dl declaration:d
+						{: DecList t = dl;
+							while( t.tail != null )
+								t = t.tail;
+							t.tail = new DecList(d, null);
+							RESULT = dl;
+						:}
+					  | declaration:d 
+						{: RESULT = new DecList(d, null); :}
 					  ;
 
-expressionstmt		::= expression SEMI 
-					  | SEMI ;
+declaration			::= vardeclaration:v
+						{:RESULT = v; :}
+					  | fundeclaration:f 
+						{:RESULT = f; :}
+					  ;
 
-selectionstmt      ::= IF LPAREN expression RPAREN statement
-					 | IF LPAREN expression RPAREN statement ELSE statement
+vardeclaration		::= typespecifier:t ID:i SEMI
+						{: RESULT = new SimpleDec(tleft, tright, t, i); :}
+					  | typespecifier:t ID:i SQLPAREN NUM:n SQRPAREN SEMI
+						{: 	IntExp num = new IntExp(nleft, nright, n);
+							RESULT = new ArrayDec(tleft, tright, t, i, num); 
+						:}
+					  ;
+
+typespecifier		::= INT:i  
+						{: RESULT = new NameTy(ileft, iright, 0); :}
+					  | VOID:v 
+						{: RESULT = new NameTy(vleft, vright, 1); :}
+					  ;
+
+fundeclaration		::= typespecifier:t ID:i LPAREN params:p RPAREN compoundstmt:c 
+						{: RESULT = new FunctionDec(tleft, tright, t, i, p, c); :}
+					  ;
+
+params				::= paramlist:pl
+						{: RESULT = pl; :}
+					  | VOID:v
+						{: RESULT = new VarDecList(null, null); :}
+					  ;
+
+paramlist			::= paramlist:pl COMMA param:p 
+						{: VarDecList t = pl;
+							while( t.tail != null )
+								t = t.tail;
+							t.tail = new VarDecList(p, null);
+							RESULT = pl;
+						:}
+					  | param:p
+						{: RESULT = new VarDecList(p, null); :}
+					  ;
+
+param				::= typespecifier:t ID:i 
+						{: RESULT = new SimpleDec(tleft, tright, t, i); :}
+					  | typespecifier:t ID:i SQLPAREN:n SQRPAREN 
+						{:  IntExp ie = new IntExp(nleft, nright, 0);
+							RESULT = new ArrayDec(tleft, tright, t, i, ie); :}
+					  ;
+
+compoundstmt		::= CRLPAREN:c localdeclarations:l statementlist:sl CRRPAREN 
+						{:RESULT = new CompoundExp(cleft, cright, l, sl); :}
+					  ;
+
+localdeclarations	::= localdeclarations:l vardeclaration:v
+						{::}
+					  | ;
+
+statementlist		::= statementlist:sl statement:s 
+						{::}
+					  | ;
+
+statement			::= expressionstmt:e
+						{: RESULT = e; :}
+					  | compoundstmt:c
+						{: RESULT = c; :}
+					  | selectionstmt:s
+						{: RESULT = s; :}
+					  | iterationstmt:i
+						{: RESULT = i; :}
+					  | returnstmt:r
+						{: RESULT = r; :}
+					  ;
+
+expressionstmt		::= expression:e SEMI 
+						{: RESULT = e; :}
+					  | SEMI 
+						{: RESULT = null; :}
+					  ;
+
+selectionstmt      ::= IF:i LPAREN expression:e RPAREN statement:s
+						{: RESULT = new IfExp(ileft, iright, e, s, null); :}
+					 | IF:i LPAREN expression:e RPAREN statement:s1 ELSE statement:s2
+						{: RESULT = new IfExp(ileft, iright, e, s1, s2); :}
 					 ;
 
-iterationstmt		::= WHILE LPAREN expression RPAREN statement ;
+iterationstmt		::= WHILE:w LPAREN expression:e RPAREN statement:s //WhileExp
+						{: RESULT = new WhileExp(wleft,wright, e, s); :}
+					  ;
 
-returnstmt			::= RETURN expression SEMI 
-					  | RETURN SEMI ;
+returnstmt			::= RETURN:r expression:e SEMI 
+						{: RESULT = new ReturnExp(rleft, rright, e); :}
+					  | RETURN:r SEMI 
+						{: RESULT = new ReturnExp(rleft, rright, null); :}
+					  ;
 
-expression			::= var EQUAL expression SEMI 
-					  | simpleexpression ;
+expression			::= var:v EQUAL expression:e SEMI
+						{: RESULT = new VarExp(vleft, vright, v); :}
+					  | simpleexpression:s 
+						{:RESULT = s; :}
+					  ;
 
-var					::= ID 
-					  | ID SQLPAREN expression SQRPAREN ;
+var					::= ID:i
+						{: RESULT = new SimpleVar(ileft, iright, i); :}
+					  | ID:i SQLPAREN expression:e SQRPAREN 
+						{: RESULT = new IndexVar(ileft, iright, i, e); :}
+					  ;
 
-simpleexpression	::= additiveexpression relop additiveexpression 
-					  | additiveexpression ;
+simpleexpression	::= additiveexpression:a1 LESSTHANEQUAL additiveexpression:a2
+						{: RESULT = new OpExp(a1left, a1right, a1, OpExp.LE, a2); :}
+					  | additiveexpression:a1 LESSTHAN additiveexpression:a2
+						{: RESULT = new OpExp(a1left, a1right, a1, OpExp.LT, a2); :}
+					  | additiveexpression:a1 GREATERTHAN additiveexpression:a2
+						{: RESULT = new OpExp(a1left, a1right, a1, OpExp.GT, a2); :}
+					  | additiveexpression:a1 GREATERTHANEQUAL additiveexpression:a2
+						{: RESULT = new OpExp(a1left, a1right, a1, OpExp.GE, a2); :}
+					  | additiveexpression:a1 EQUALEQUAL additiveexpression:a2
+						{: RESULT = new OpExp(a1left, a1right, a1, OpExp.EQ, a2); :}
+					  | additiveexpression:a1 NOTEQUAL additiveexpression:a2
+						{: RESULT = new OpExp(a1left, a1right, a1, OpExp.NE, a2); :}
+					  | additiveexpression:a 
+						{:RESULT = a; :}
+					  ;
 
-relop				::= LESSTHANEQUAL 
+relop				::= LESSTHANEQUAL
 					  | LESSTHAN 
 					  | GREATERTHAN 
 					  | GREATERTHANEQUAL 
@@ -158,28 +239,53 @@ relop				::= LESSTHANEQUAL
 					  | NOTEQUAL
 					  ;
 
-additiveexpression	::= additiveexpression addop term | term ;
-
-addop				::= PLUS 
-					  | MINUS ;
-
-term				::= term mulop factor 
-					  | factor ;
-
-mulop				::= MULTIPLY 
-					  | DIVIDE ;
-
-factor				::= LPAREN expression RPAREN 
-					  | var 
-					  | call 
-					  | NUM
+additiveexpression	::= additiveexpression:ae PLUS term:t
+						{: RESULT = new OpExp(aeleft, aeright, ae, OpExp.PLUS, t); :}
+					  | additiveexpression:ae MINUS term:t
+						{: RESULT = new OpExp(aeleft, aeright, ae, OpExp.MINUS, t); :}
+					  | term:t 
+						{: RESULT = t; :}
 					  ;
 
-call				::= ID LPAREN args RPAREN ;
+addop				::= PLUS
+					  | MINUS 
+					  ;
 
-args				::= arglist 
-					  | ;
+term				::= term:t MULTIPLY factor:f 
+						{: RESULT = new OpExp(tleft, tright, t, OpExp.MUL, f); :}
+					  | term:t DIVIDE factor:f 
+						{: RESULT = new OpExp(tleft, tright, t, OpExp.DIV, f); :}
+					  | factor:f 
+						{: RESULT = f; :}
+					  ;
 
-arglist				::= arglist COMMA expression 
-					  | expression ;
+mulop				::= MULTIPLY
+					  | DIVIDE 
+					  ;
+
+factor				::= LPAREN expression:e RPAREN
+						{: RESULT = e; :}
+					  | var:v 
+						{: RESULT = new VarExp(vleft, vright, v); :}
+					  | call:c 
+						{: RESULT = c; :}
+					  | NUM:n
+						{: RESULT = new IntExp(nleft, nright, n); :}
+					  ;
+
+call				::= ID:i LPAREN args:a RPAREN 
+						{:RESULT = new CallExp(ileft, iright, i, a); :}
+					  ;
+
+args				::= arglist:al
+						{:RESULT = al; :}
+					  | 
+						{:RESULT = new ExpList(null, null); :}
+					  ;
+
+arglist				::= arglist:al COMMA expression:e 
+						{:RESULT = new ExpList(e, al); :}
+					  | expression:e 
+						{:RESULT = new ExpList(e, null); :}
+					  ;
 
