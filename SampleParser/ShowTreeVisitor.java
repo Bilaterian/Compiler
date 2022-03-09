@@ -93,7 +93,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
     System.out.println("CallExp: " + exp.func);
     level++;
     ExpList args = exp.args;
-    while (args != null) {
+    while (args.tail != null) {
       args.head.accept(this, level);
       args = args.tail;
     }

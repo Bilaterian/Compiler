@@ -83,11 +83,11 @@ non terminal Exp expressionstmt, selectionstmt, iterationstmt, returnstmt;
 non terminal Exp simpleexpression, additiveexpression;
 non terminal Exp statement, expression, relop, addop, term, mulop, factor, call;
 non terminal NameTy typespecifier;
-non terminal Dec declaration, vardeclaration, fundeclaration;
+non terminal Dec declaration, fundeclaration;
 non terminal DecList declarationlist, program;
 non terminal Var var;
 non terminal VarDecList params, localdeclarations, paramlist;
-non terminal VarDec param;
+non terminal VarDec param, vardeclaration;
 non terminal CompoundExp compoundstmt;
 
 /* ----------------------------Grammar Section-------------------- */
@@ -166,12 +166,21 @@ compoundstmt		::= CRLPAREN:c localdeclarations:l statementlist:sl CRRPAREN
 					  ;
 
 localdeclarations	::= localdeclarations:l vardeclaration:v
-						{::}
-					  | ;
+						
+					  | 
+					  ;
 
 statementlist		::= statementlist:sl statement:s 
-						{::}
-					  | ;
+						{:
+							ExpList t = sl;
+							while( t.tail != null)
+								t = t.tail;
+							t.tail = new ExpList(s, null);
+							RESULT = sl;
+						:}
+					  | statement:s
+						{: RESULT = new ExpList(s, null); :}
+					  ;
 
 statement			::= expressionstmt:e
 						{: RESULT = e; :}
