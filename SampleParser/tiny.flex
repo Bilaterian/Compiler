@@ -85,7 +85,7 @@ NUM = [0-9]+
    Z, a and z, or an underscore followed by zero or more letters
    between A and Z, a and z, zero and nine, or an underscore. */
 ID = [_a-zA-Z][_a-zA-Z0-9]*
-CCOMMENTS = [\/\*(\*(?!\/)|[^*])*\*\/]
+CCOMMENTS = \/\*(\*(?!\/)|[^*])*\*\/
    
 %%
 /* ------------------------Lexical Rules Section---------------------- */

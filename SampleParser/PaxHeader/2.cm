@@ -1,0 +1,15 @@
+/*   
+invalid return statement
+undefined notdefiniedFunctionCall
+*/ 
+
+void main(void) {  /* 
+  int x;
+  x = 2;
+  x++
+  
+  
+  
+} 
+
+

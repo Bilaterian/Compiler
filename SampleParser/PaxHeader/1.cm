@@ -1,0 +1,18 @@
+/*   
+invalid return statement
+undefined notdefiniedFunctionCall
+*/ 
+
+void main(void) {  /* 
+  int x;
+  int y;
+  int z;
+  x =     */x not defined  */
+  y = 1;
+  z = notdefiniedFunctionCall(); 
+  if (); /*invalid if statement
+  
+
+  
+} 
+
