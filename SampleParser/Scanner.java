@@ -4,8 +4,8 @@ import java_cup.runtime.Symbol;
 public class Scanner {
   private Lexer scanner = null;
 
-  public Scanner( Lexer lexer ) {
-    scanner = lexer; 
+  public Scanner(Lexer lexer) {
+    scanner = lexer;
   }
 
   public Symbol getNextToken() throws java.io.IOException {
@@ -16,10 +16,9 @@ public class Scanner {
     try {
       Scanner scanner = new Scanner(new Lexer(new InputStreamReader(System.in)));
       Symbol tok = null;
-      while( (tok=scanner.getNextToken()) != null )
+      while ((tok = scanner.getNextToken()) != null)
         System.out.println(sym.terminalNames[tok.sym]);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       System.out.println("Unexpected exception:");
       e.printStackTrace();
     }
