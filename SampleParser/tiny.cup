@@ -98,6 +98,7 @@ program				::= declarationlist:dl
 						{: RESULT = dl; :}
 					  ;
 
+
 declarationlist		::= declarationlist:dl declaration:d
 						{: DecList t = dl;
 							while( t.tail != null )
@@ -193,7 +194,7 @@ selectionstmt      ::= IF:i LPAREN expression:e RPAREN statement:s
 						{: RESULT = new IfExp(ileft, iright, e, s1, s2); :}
 					 ;
 
-iterationstmt		::= WHILE:w LPAREN expression:e RPAREN statement:s //WhileExp
+iterationstmt		::= WHILE:w LPAREN expression:e RPAREN statement:s
 						{: RESULT = new WhileExp(wleft,wright, e, s); :}
 					  ;
 
@@ -203,7 +204,7 @@ returnstmt			::= RETURN:r expression:e SEMI
 						{: RESULT = new ReturnExp(rleft, rright, null); :}
 					  ;
 
-expression			::= var:v EQUAL expression:e SEMI
+expression			::= var:v EQUAL expression:e
 						{: RESULT = new VarExp(vleft, vright, v); :}
 					  | simpleexpression:s 
 						{:RESULT = s; :}
@@ -288,4 +289,3 @@ arglist				::= arglist:al COMMA expression:e
 					  | expression:e 
 						{:RESULT = new ExpList(e, null); :}
 					  ;
-
