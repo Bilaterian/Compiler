@@ -81,7 +81,7 @@ terminal ERROR;
 non terminal ExpList statementlist, arglist, args;
 non terminal Exp expressionstmt, selectionstmt, iterationstmt, returnstmt;
 non terminal Exp simpleexpression, additiveexpression;
-non terminal Exp statement, expression, relop, addop, term, mulop, factor, call;
+non terminal Exp statement, expression, relop,  term,  factor, call;
 non terminal NameTy typespecifier;
 non terminal Dec declaration, fundeclaration;
 non terminal DecList declarationlist, program;
@@ -89,6 +89,7 @@ non terminal Var var;
 non terminal VarDecList params, localdeclarations, paramlist;
 non terminal VarDec param, vardeclaration;
 non terminal CompoundExp compoundstmt;
+non terminal Integer addop,mulop;
 
 /* ----------------------------Grammar Section-------------------- */
    
@@ -222,6 +223,7 @@ selectionstmt      ::= IF:i LPAREN expression:e RPAREN statement:s
 					 | IF:i LPAREN expression:e RPAREN statement:s1 ELSE statement:s2
 						{: RESULT = new IfExp(ileft, iright, e, s1, s2); :}
 					 ;
+					 
 
 iterationstmt		::= WHILE:w LPAREN expression:e RPAREN statement:s
 						{: RESULT = new WhileExp(wleft,wright, e, s); :}
@@ -234,7 +236,7 @@ returnstmt			::= RETURN:r expression:e SEMI
 					  ;
 
 expression			::= var:v EQUAL expression:e
-						{: RESULT = new VarExp(vleft, vright, v); :}
+						{: RESULT = new AssignExp(vleft, vright, new VarExp(vleft,vright,v),e); :}
 					  | simpleexpression:s 
 						{:RESULT = s; :}
 					  ;
@@ -269,29 +271,30 @@ relop				::= LESSTHANEQUAL
 					  | NOTEQUAL
 					  ;
 
-additiveexpression	::= additiveexpression:ae PLUS term:t
-						{: RESULT = new OpExp(aeleft, aeright, ae, OpExp.PLUS, t); :}
-					  | additiveexpression:ae MINUS term:t
-						{: RESULT = new OpExp(aeleft, aeright, ae, OpExp.MINUS, t); :}
+additiveexpression	::= additiveexpression:ae addop:o term:t
+						{: RESULT = new OpExp(aeleft, aeright, ae, o, t); :}
 					  | term:t 
 						{: RESULT = t; :}
 					  ;
 
-addop				::= PLUS
-					  | MINUS 
-					  ;
+addop				::= PLUS: i 
+						{: RESULT = OpExp.PLUS; :}
+					  | MINUS: i
+						{: RESULT = OpExp.MINUS;:}
+					;
 
-term				::= term:t MULTIPLY factor:f 
-						{: RESULT = new OpExp(tleft, tright, t, OpExp.MUL, f); :}
-					  | term:t DIVIDE factor:f 
-						{: RESULT = new OpExp(tleft, tright, t, OpExp.DIV, f); :}
+
+term				::= term:t mulop:o factor:f 
+						{: RESULT = new OpExp(tleft, tright, t, o, f); :}
 					  | factor:f 
 						{: RESULT = f; :}
 					  ;
 
-mulop				::= MULTIPLY
-					  | DIVIDE 
-					  ;
+mulop				::= MULTIPLY: i 
+						{: RESULT = OpExp.MUL; :}
+					  | DIVIDE: i
+						{: RESULT = OpExp.DIV;:}
+					;
 
 factor				::= LPAREN expression:e RPAREN
 						{: RESULT = e; :}
@@ -310,7 +313,7 @@ call				::= ID:i LPAREN args:a RPAREN
 args				::= arglist:al
 						{:RESULT = al; :}
 					  | 
-						{:RESULT = new ExpList(null, null); :}
+						
 					  ;
 
 arglist				::= arglist:al COMMA expression:e 

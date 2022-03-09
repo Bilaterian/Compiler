@@ -109,7 +109,7 @@ CCOMMENTS = "/*"[^*/]*"*/"
 "<="               { return symbol(sym.LESSTHANEQUAL); }
 ">"                { return symbol(sym.GREATERTHAN); }
 ">="               { return symbol(sym.GREATERTHANEQUAL); }
-"="                { return symbol(sym.EQUALEQUAL); }
+"=="               { return symbol(sym.EQUALEQUAL); }
 "!="               { return symbol(sym.NOTEQUAL); }
 "="                { return symbol(sym.EQUAL); }
 ";"                { return symbol(sym.SEMI); }
