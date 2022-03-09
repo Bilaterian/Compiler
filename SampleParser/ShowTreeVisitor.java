@@ -84,23 +84,36 @@ public class ShowTreeVisitor implements AbsynVisitor {
   public void visit(VarExp exp, int level) {
     indent(level);
     System.out.println("VarExp: " + exp.variable.name);
+    level++;
+    exp.variable.accept(this, level);
   }
 
   public void visit(CallExp exp, int level) {
     indent(level);
     System.out.println("CallExp: " + exp.func);
     level++;
-    if (exp.args != null)
-      exp.args.accept(this, level);
+    ExpList args = exp.args;
+    while (args != null) {
+      args.head.accept(this, level);
+      args = args.tail;
+    }
   }
 
   public void visit(CompoundExp exp, int level) {
     indent(level);
+    System.out.println("CompoundExp: ");
     level++;
-    if (exp.decs != null)
-      exp.decs.accept(this, level);
-    if (exp.exps != null)
-      exp.exps.accept(this, level);
+    VarDecList decs = exp.decs;
+    while (decs != null) {
+      decs.head.accept(this, level);
+      decs = decs.tail;
+    }
+    ExpList exps = exp.exps;
+    while (exps != null) {
+      exps.head.accept(this, level);
+      exps = exps.tail;
+    }
+
   }
 
   public void visit(VarDecList varDecList, int level) {
@@ -120,9 +133,13 @@ public class ShowTreeVisitor implements AbsynVisitor {
   public void visit(FunctionDec functionDec, int level) {
     indent(level);
     System.out.println("FunctionDec: " + functionDec.func);
+    visit(functionDec.result, level);
     level++;
-    if (functionDec.params != null)
-      functionDec.params.accept(this, level);
+    VarDecList params = functionDec.params;
+    while (params != null) {
+      params.head.accept(this, level);
+      params = params.tail;
+    }
     functionDec.body.accept(this, level);
   }
 
@@ -164,8 +181,7 @@ public class ShowTreeVisitor implements AbsynVisitor {
   public void visit(SimpleDec dec, int level) {
     indent(level);
     System.out.println("SimpleDec: " + dec.name);
-    level++;
-    dec.typ.accept(this, level);
+
   }
 
   public void visit(SimpleVar var, int level) {
@@ -185,8 +201,6 @@ public class ShowTreeVisitor implements AbsynVisitor {
   public void visit(ArrayDec dec, int level) {
     indent(level);
     System.out.println("ArrayDec: " + dec.name);
-    level++;
-    dec.typ.accept(this, level);
-    dec.size.accept(this, level);
+
   }
 }

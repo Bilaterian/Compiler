@@ -136,8 +136,8 @@ fundeclaration		::= typespecifier:t ID:i LPAREN params:p RPAREN compoundstmt:c
 
 params				::= paramlist:pl
 						{: RESULT = pl; :}
-					  | VOID:v
-						{: RESULT = new VarDecList(null, null); :}
+					  | VOID
+						{: RESULT = null; :}
 					  ;
 
 paramlist			::= paramlist:pl COMMA param:p 
