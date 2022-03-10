@@ -1,4 +1,4 @@
-
+/*declared variables with wrong typing*/
 void main(void) {
     int x;
 	int fac;
