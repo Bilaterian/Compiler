@@ -3,27 +3,27 @@
   File Name: tiny.cup
   To Build: java java_cup.Main < tiny.cup
 */
-
-
+   
+   
 /* ----------------------Preliminary Declarations Section--------------------*/
-
+   
 /* Import the class java_cup.runtime.*  */
 //import java_cup.runtime.*;
 import absyn.*;
-
+   
 /* Parser code to change the way the parser reports errors (include
    line and column number of the error). */
 parser code {:
-
+    
     /* Change the method report_error so it will display the line and
        column of where the error occurred in the input as well as the
        reason for the error which is passed into the method in the
        String 'message'. */
     public void report_error(String message, Object info) {
-
+   
         /* Create a StringBuffer called 'm' with the string 'Error' in it. */
         StringBuffer m = new StringBuffer("Error");
-
+   
         /* Check if the information passed to the method is the same
            type as the type java_cup.runtime.Symbol. */
         if (info instanceof java_cup.runtime.Symbol) {
@@ -31,31 +31,31 @@ parser code {:
                information in the object info that is being typecasted
                as a java_cup.runtime.Symbol object. */
             java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
-
+   
             /* Check if the line number in the input is greater or
                equal to zero. */
-            if (s.left >= 0) {
+            if (s.left >= 0) {                
                 /* Add to the end of the StringBuffer error message
                    the line number of the error in the input. */
-                m.append(" in line "+(s.left+1));
+                m.append(" in line "+(s.left+1));   
                 /* Check if the column number in the input is greater
                    or equal to zero. */
-                if (s.right >= 0)
+                if (s.right >= 0)                    
                     /* Add to the end of the StringBuffer error message
                        the column number of the error in the input. */
                     m.append(", column "+(s.right+1));
             }
         }
-
+   
         /* Add to the end of the StringBuffer error message created in
            this method the message that was passed into this method. */
         m.append(" : "+message);
-
+   
         /* Print the contents of the StringBuffer 'm', which contains
            an error message, out on a line. */
         System.err.println(m);
     }
-
+   
     /* Change the method report_fatal_error so when it reports a fatal
        error it will display the line and column number of where the
        fatal error occurred in the input as well as the reason for the
@@ -67,10 +67,10 @@ parser code {:
     }
 
 :};
-
-
+   
+   
 /* ------------Declaration of Terminals and Non Terminals Section----------- */
-
+   
 terminal IF, ELSE, INT, RETURN, VOID, WHILE;
 terminal PLUS, MINUS, MULTIPLY, DIVIDE, LESSTHAN, LESSTHANEQUAL, GREATERTHAN, GREATERTHANEQUAL;
 terminal EQUALEQUAL, NOTEQUAL, EQUAL, SEMI, COMMA, LPAREN, RPAREN, SQLPAREN, SQRPAREN, CRLPAREN, CRRPAREN;
@@ -101,12 +101,12 @@ precedence left ELSE;
 
 start with program;
 
-program				::= declarationlist:dl
+program				::= declarationlist:dl 
 						{: RESULT = dl; :}
-					| 	ERROR:e
-                     {:parser.report_fatal_error("invalid file format", e); :}
-
-					;
+					| 	ERROR
+                     {:parser.report_fatal_error("invalid file format", null); :}
+					
+					; 
 
 
 declarationlist		::= declarationlist:dl declaration:d
@@ -116,16 +116,16 @@ declarationlist		::= declarationlist:dl declaration:d
 							t.tail = new DecList(d, null);
 							RESULT = dl;
 						:}
-					  | declaration:d
+					  | declaration:d 
 						{: RESULT = new DecList(d, null); :}
-					  | error:e SEMI declaration:d
-					  	{:parser.report_error ("Invalid Syntax - declarationlist", e);
+					  | error:e SEMI declaration:d 
+					  	{:parser.report_error (" Declarationlist -Invalid Syntax ", null);
 						  RESULT = new DecList(d,null); :}
 					  ;
 
 declaration			::= vardeclaration:v
 						{:RESULT = v; :}
-					  | fundeclaration:f
+					  | fundeclaration:f 
 						{:RESULT = f; :}
 					  ;
 
@@ -133,32 +133,32 @@ vardeclaration		::= typespecifier:t ID:i SEMI
 						{: RESULT = new SimpleDec(tleft, tright, t, i); :}
 					  | typespecifier:t ID:i SQLPAREN NUM:n SQRPAREN SEMI
 						{: 	IntExp num = new IntExp(nleft, nright, n);
-							RESULT = new ArrayDec(tleft, tright, t, i, num);
+							RESULT = new ArrayDec(tleft, tright, t, i, num); 
 						:}
 					  | typespecifier:t ID:i SQLPAREN error:e SQRPAREN SEMI
-						{: 	 parser.report_error("VarDeclartion: invalid array size at row:" + (eleft + 1) + ",col:" + eright + "", e);
-							//RESULT = new ArrayDec(tleft, tright, t, i, null);
+						{: 	 parser.report_error("VarDeclartion: invalid array size at row:" + (eleft + 1) + ",col:" + eright + "", null);
+							//RESULT = new ArrayDec(tleft, tright, t, i, null); 
 						:}
 					  | typespecifier:t ID:i error:e
-
-						{: 	 parser.report_error("VarDeclartion: missing semi colon at {row:" + (eleft + 1) + ",col:" + eright + "}", e);
-
+					  
+						{: 	 parser.report_error("VarDeclartion: missing semi colon at {row:" + (eleft + 1) + ",col:" + eright + "}", null); 
+							
 						:}
 
 					  ;
 
-typespecifier		::= INT:i
+typespecifier		::= INT:i  
 						{: RESULT = new NameTy(ileft, iright, 0); :}
-					  | VOID:v
+					  | VOID:v 
 						{: RESULT = new NameTy(vleft, vright, 1); :}
 					  ;
 
-fundeclaration		::= typespecifier:t ID:i LPAREN params:p RPAREN compoundstmt:c
+fundeclaration		::= typespecifier:t ID:i LPAREN params:p RPAREN compoundstmt:c 
 						{: RESULT = new FunctionDec(tleft, tright, t, i, p, c); :}
-					   | typespecifier:t ID:i LPAREN error:e RPAREN compoundstmt:c
-						{: parser.report_error("FunDeclaration: Invalid Params at {row:" + (eleft + 1) + ",col:" + eright + "}", e);
-						RESULT = new FunctionDec(tleft, tright, t, i, null, null); :}
-
+					   | typespecifier:t ID:i LPAREN error:e RPAREN compoundstmt:c 
+						{: parser.report_error("FunDeclaration: Invalid Params at {row:" + (eleft + 1) + ",col:" + eright + "}", null); 
+							//RESULT = new FunctionDec(tleft, tright, t, i, null, null); :}
+						
 
 
 					  ;
@@ -169,7 +169,7 @@ params				::= paramlist:pl
 						{: RESULT = null; :}
 					  ;
 
-paramlist			::= paramlist:pl COMMA param:p
+paramlist			::= paramlist:pl COMMA param:p 
 						{: VarDecList t = pl;
 							while( t.tail != null )
 								t = t.tail;
@@ -180,25 +180,24 @@ paramlist			::= paramlist:pl COMMA param:p
 						{: RESULT = new VarDecList(p, null); :}
 					  ;
 
-param				::= typespecifier:t ID:i
+param				::= typespecifier:t ID:i 
 						{: RESULT = new SimpleDec(tleft, tright, t, i); :}
-					  | typespecifier:t ID:i SQLPAREN SQRPAREN
+					  | typespecifier:t ID:i SQLPAREN SQRPAREN 
 						{:  IntExp ie = new IntExp(tleft, tright, "");
 							RESULT = new ArrayDec(tleft, tright, t, i, ie); :}
-					  | typespecifier:t ID:i SQLPAREN NUM:n SQRPAREN
+					  | typespecifier:t ID:i SQLPAREN NUM:n SQRPAREN 
 						{:  IntExp ie = new IntExp(tleft, tright, n);
 							RESULT = new ArrayDec(tleft, tright, t, i, ie); :}
 					  ;
 
-compoundstmt		::= CRLPAREN:c localdeclarations:l statementlist:sl CRRPAREN
+compoundstmt		::= CRLPAREN:c localdeclarations:l statementlist:sl CRRPAREN 
 						{:RESULT = new CompoundExp(cleft, cright, l, sl); :}
-						| CRLPAREN:c localdeclarations:l  CRRPAREN
-						{:RESULT = new CompoundExp(cleft, cright, l, null);:}
-						| CRLPAREN:c statementlist:sl CRRPAREN
+						| CRLPAREN:c localdeclarations:l  CRRPAREN 
+						{:RESULT = new CompoundExp(cleft, cright, l, null);:}	
+						| CRLPAREN:c statementlist:sl CRRPAREN 
 						{:RESULT = new CompoundExp(cleft, cright, null, sl);:}
-						| CRLPAREN:c CRRPAREN
+						| CRLPAREN:c CRRPAREN 
 						{:RESULT = new CompoundExp(cleft,cright, null, null);:}
-
 					  ;
 
 localdeclarations	::= localdeclarations:l vardeclaration:v
@@ -212,10 +211,10 @@ localdeclarations	::= localdeclarations:l vardeclaration:v
 						vardeclaration:v
 						{:
 							RESULT = new VarDecList(v, null); :}
-
+					
 					  ;
 
-statementlist		::= statementlist:sl statement:s
+statementlist		::= statementlist:sl statement:s 
 						{:
 							ExpList t = sl;
 							while( t.tail != null)
@@ -241,47 +240,51 @@ statement			::= expressionstmt:e
 						{: RESULT = r; :}
 					  | error:e SEMI
 					  {:
-					  	parser.report_error("Invalid Statement at {row:" + (eleft + 1) + ",col:" + eright + "}", e);
+					  	parser.report_error("Invalid Statement at {row:" + (eleft + 1) + ",col:" + eright + "}", null); 
 					  :}
 					  ;
 
-expressionstmt		::= expression:e SEMI
+expressionstmt		::= expression:e SEMI 
 						{: RESULT = e; :}
-					  | SEMI
-
+					  | SEMI 
+						
 					  ;
 
 selectionstmt      ::= IF:i LPAREN expression:e RPAREN statement:s
 						{: RESULT = new IfExp(ileft, iright, e, s, null); :}
 					 | IF:i LPAREN expression:e RPAREN statement:s1 ELSE statement:s2
 						{: RESULT = new IfExp(ileft, iright, e, s1, s2); :}
+					 | IF:i LPAREN error RPAREN statement:s
+                     	{: parser.report_error("IFEXP: Invalid Params",null);
+                        	//RESULT = new IfExp(ileft, iright, null, s, null);
+                      	:}
 					 ;
-
+					 
 
 iterationstmt		::= WHILE:w LPAREN expression:e RPAREN statement:s
 						{: RESULT = new WhileExp(wleft,wright, e, s); :}
-						| WHILE:w error:e expression:exp RPAREN statement:s
-						{: parser.report_error("Missing LPAREN at {row:" + (eleft + 1) + ",col:" + eright + "}", e); :}
-						| WHILE:w LPAREN error:e RPAREN statement:s
-						{: parser.report_error("Invalid Expression at {row:" + (eleft + 1) + ",col:" + eright + "}", e); :}
-
+						| WHILE:w error:e expression:exp RPAREN statement:s 
+						{: parser.report_error("Missing LPAREN at {row:" + (eleft + 1) + ",col:" + eright + "}", null); :}
+						| WHILE:w LPAREN error:e RPAREN statement:s 
+						{: parser.report_error("Invalid Expression at {row:" + (eleft + 1) + ",col:" + eright + "}", null); :}
+						
 					  ;
 
-returnstmt			::= RETURN:r expression:e SEMI
+returnstmt			::= RETURN:r expression:e SEMI 
 						{: RESULT = new ReturnExp(rleft, rright, e); :}
-					  | RETURN:r SEMI
+					  | RETURN:r SEMI 
 						{: RESULT = new ReturnExp(rleft, rright, null); :}
 					  ;
 
 expression			::= var:v EQUAL expression:e
-						{: RESULT = new AssignExp(vleft, vright, new VarExp(vleft,vright,v),e); :}
-					  | simpleexpression:s
+						{: RESULT = new AssignExp(vleft, vright, new VarExp(vleft,vright,v),null); :}
+					  | simpleexpression:s 
 						{:RESULT = s; :}
 					  ;
 
 var					::= ID:i
 						{: RESULT = new SimpleVar(ileft, iright, i); :}
-					  | ID:i SQLPAREN expression:e SQRPAREN
+					  | ID:i SQLPAREN expression:e SQRPAREN 
 						{: RESULT = new IndexVar(ileft, iright, i, e); :}
 					  ;
 
@@ -297,38 +300,38 @@ simpleexpression	::= additiveexpression:a1 LESSTHANEQUAL additiveexpression:a2
 						{: RESULT = new OpExp(a1left, a1right, a1, OpExp.EQ, a2); :}
 					  | additiveexpression:a1 NOTEQUAL additiveexpression:a2
 						{: RESULT = new OpExp(a1left, a1right, a1, OpExp.NE, a2); :}
-					  | additiveexpression:a
+					  | additiveexpression:a 
 						{:RESULT = a; :}
 					  ;
 
 relop				::= LESSTHANEQUAL
-					  | LESSTHAN
-					  | GREATERTHAN
-					  | GREATERTHANEQUAL
-					  | EQUALEQUAL
+					  | LESSTHAN 
+					  | GREATERTHAN 
+					  | GREATERTHANEQUAL 
+					  | EQUALEQUAL 
 					  | NOTEQUAL
 					  ;
 
 additiveexpression	::= additiveexpression:ae addop:o term:t
 						{: RESULT = new OpExp(aeleft, aeright, ae, o, t); :}
-					  | term:t
+					  | term:t 
 						{: RESULT = t; :}
 					  ;
 
-addop				::= PLUS: i
+addop				::= PLUS: i 
 						{: RESULT = OpExp.PLUS; :}
 					  | MINUS: i
 						{: RESULT = OpExp.MINUS;:}
 					;
 
 
-term				::= term:t mulop:o factor:f
+term				::= term:t mulop:o factor:f 
 						{: RESULT = new OpExp(tleft, tright, t, o, f); :}
-					  | factor:f
+					  | factor:f 
 						{: RESULT = f; :}
 					  ;
 
-mulop				::= MULTIPLY: i
+mulop				::= MULTIPLY: i 
 						{: RESULT = OpExp.MUL; :}
 					  | DIVIDE: i
 						{: RESULT = OpExp.DIV;:}
@@ -336,26 +339,26 @@ mulop				::= MULTIPLY: i
 
 factor				::= LPAREN expression:e RPAREN
 						{: RESULT = e; :}
-					  | var:v
+					  | var:v 
 						{: RESULT = new VarExp(vleft, vright, v); :}
-					  | call:c
+					  | call:c 
 						{: RESULT = c; :}
 					  | NUM:n
 						{: RESULT = new IntExp(nleft, nright, n); :}
 					  ;
 
-call				::= ID:i LPAREN args:a RPAREN
+call				::= ID:i LPAREN args:a RPAREN 
 						{:RESULT = new CallExp(ileft, iright, i, a); :}
 					  ;
 
 args				::= arglist:al
 						{:RESULT = al; :}
-					  |
-
+					  | 
+						
 					  ;
 
-arglist				::= arglist:al COMMA expression:e
+arglist				::= arglist:al COMMA expression:e 
 						{:RESULT = new ExpList(e, al); :}
-					  | expression:e
+					  | expression:e 
 						{:RESULT = new ExpList(e, null); :}
 					  ;
