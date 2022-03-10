@@ -1,4 +1,11 @@
-void main(void) {
-  int x;'
-  x = 0;
+/*invalid if statement, nothing in paramaters */
+
+void main(void test){
+  int i;
+  i = 2 + 1;
+  if (){
+    /* won't be printed because it is inside of invalid if */
+    int error;
+    error = 1 + 2;
+  }
 }

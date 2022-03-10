@@ -1,4 +1,22 @@
+/* While missing left paranthesis, while mssing right paranthesis*/
 void main(void) {
-  /*int x;
-  x = 0;
+  int i;
+  i = 0;
+  while (i < 10) {
+    i = i + 1;
+  }
+
+  int i;
+  i = 0;
+  while i < 10) {
+    i = i + 1;
+  }
+
+  int i;
+  i = 0;
+  while (i < 10 {
+    i = i + 1;
+  }
+
+  
 }
