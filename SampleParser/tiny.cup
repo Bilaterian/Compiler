@@ -91,13 +91,22 @@ non terminal VarDec param, vardeclaration;
 non terminal CompoundExp compoundstmt;
 non terminal Integer addop,mulop;
 
+precedence nonassoc NOTEQUAL, LESSTHANEQUAL, LESSTHAN, GREATERTHANEQUAL, GREATERTHAN, EQUAL;
+precedence left PLUS, MINUS;
+precedence left MULTIPLY, DIVIDE;
+precedence left ELSE;
+
 /* ----------------------------Grammar Section-------------------- */
-   
+
+
 start with program;
 
 program				::= declarationlist:dl 
 						{: RESULT = dl; :}
-					  ;
+					| 	ERROR
+                     {:parser.report_fatal_error("invalid file format", null); :}
+					
+					; 
 
 
 declarationlist		::= declarationlist:dl declaration:d
@@ -109,6 +118,9 @@ declarationlist		::= declarationlist:dl declaration:d
 						:}
 					  | declaration:d 
 						{: RESULT = new DecList(d, null); :}
+					  | error:e SEMI declaration:d 
+					  	{:parser.report_error ("Invalid Syntax - declarationlist", e);
+						  RESULT = new DecList(d,null); :}
 					  ;
 
 declaration			::= vardeclaration:v
@@ -123,6 +135,15 @@ vardeclaration		::= typespecifier:t ID:i SEMI
 						{: 	IntExp num = new IntExp(nleft, nright, n);
 							RESULT = new ArrayDec(tleft, tright, t, i, num); 
 						:}
+					  | typespecifier:t ID:i SQLPAREN error:e SQRPAREN SEMI
+						{: 	parser.report_error("invalid value for array size", null); 
+							RESULT = new ArrayDec(tleft, tright, t, i, null); 
+						:}
+					  | typespecifier:t ID:i error
+						{: 	parser.report_error("error no semi", null); 
+							
+						:}
+
 					  ;
 
 typespecifier		::= INT:i  
@@ -133,6 +154,12 @@ typespecifier		::= INT:i
 
 fundeclaration		::= typespecifier:t ID:i LPAREN params:p RPAREN compoundstmt:c 
 						{: RESULT = new FunctionDec(tleft, tright, t, i, p, c); :}
+					   | typespecifier:t ID:i LPAREN error:e RPAREN compoundstmt:c 
+						{: parser.report_error("Invalid Params",e); 
+						RESULT = new FunctionDec(tleft, tright, t, i, null, null); :}
+						
+
+
 					  ;
 
 params				::= paramlist:pl
@@ -184,6 +211,7 @@ localdeclarations	::= localdeclarations:l vardeclaration:v
 						vardeclaration:v
 						{:
 							RESULT = new VarDecList(v, null); :}
+					
 					  ;
 
 statementlist		::= statementlist:sl statement:s 
@@ -216,6 +244,10 @@ expressionstmt		::= expression:e SEMI
 						{: RESULT = e; :}
 					  | SEMI 
 						{: RESULT = null; :}
+					  | expression:exp error:e 
+					  {: parser.report_error("Invalid Syntax Error: Expression Statement", e); :}
+					  |  error:e 
+					  {: parser.report_error("Invalid Syntax Error: Expression Statement", e); :}
 					  ;
 
 selectionstmt      ::= IF:i LPAREN expression:e RPAREN statement:s
@@ -227,6 +259,8 @@ selectionstmt      ::= IF:i LPAREN expression:e RPAREN statement:s
 
 iterationstmt		::= WHILE:w LPAREN expression:e RPAREN statement:s
 						{: RESULT = new WhileExp(wleft,wright, e, s); :}
+						| WHILE:w LPAREN error:e RPAREN statement:s 
+						{: parser.report_error("Invalid expression: while statement", e); :}
 					  ;
 
 returnstmt			::= RETURN:r expression:e SEMI 
