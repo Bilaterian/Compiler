@@ -254,8 +254,8 @@ selectionstmt      ::= IF:i LPAREN expression:e RPAREN statement:s
 						{: RESULT = new IfExp(ileft, iright, e, s, null); :}
 					 | IF:i LPAREN expression:e RPAREN statement:s1 ELSE statement:s2
 						{: RESULT = new IfExp(ileft, iright, e, s1, s2); :}
-					 | IF:i LPAREN error RPAREN statement:s
-                     	{: parser.report_error("IFEXP: Invalid Params",null);
+					 | IF:i LPAREN error:e RPAREN statement:s
+                     	{: parser.report_error("Invalid IFExp params at  {row:" + (eleft + 1) + ",col:" + eright + "}", null); 
                         	//RESULT = new IfExp(ileft, iright, null, s, null);
                       	:}
 					 ;
@@ -286,7 +286,11 @@ var					::= ID:i
 						{: RESULT = new SimpleVar(ileft, iright, i); :}
 					  | ID:i SQLPAREN expression:e SQRPAREN 
 						{: RESULT = new IndexVar(ileft, iright, i, e); :}
-					  ;
+					  | ID: i SQLPAREN error:e SQRPAREN
+					  	{:parser.report_error("Invalid Expression at {row:" + (eleft + 1) + ",col:" + eright + "}", null); 
+						
+						:} 
+					  ; 
 
 simpleexpression	::= additiveexpression:a1 LESSTHANEQUAL additiveexpression:a2
 						{: RESULT = new OpExp(a1left, a1right, a1, OpExp.LE, a2); :}
