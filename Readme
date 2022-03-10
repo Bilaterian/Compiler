@@ -1,8 +1,5 @@
-In this package, we provide a SampleParser that shows you how to build a scanner
-and a parser together with JFlex and CUP.  It's intended to shorten your learning
-curve for these tools and you are allowed to use it as a starting point to build
-your project implementations.
-
-Also included are three C- programs from the C-Specification for your convenience 
-during development and testing.
+Aside from the java files in absyn that do not share a name with the 
+ones found in the sample package, we recognize that all files here 
+were taken from the sample package and were modified to fit the 
+checkpoint's requirements. 
 
