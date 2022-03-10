@@ -103,8 +103,8 @@ start with program;
 
 program				::= declarationlist:dl 
 						{: RESULT = dl; :}
-					| 	ERROR
-                     {:parser.report_fatal_error("invalid file format", null); :}
+					| 	ERROR:e
+                     {:parser.report_fatal_error("invalid file format", e); :}
 					
 					; 
 
@@ -136,11 +136,11 @@ vardeclaration		::= typespecifier:t ID:i SEMI
 							RESULT = new ArrayDec(tleft, tright, t, i, num); 
 						:}
 					  | typespecifier:t ID:i SQLPAREN error:e SQRPAREN SEMI
-						{: 	parser.report_error("invalid value for array size", null); 
+						{: 	parser.report_error("invalid value for array size", e); 
 							RESULT = new ArrayDec(tleft, tright, t, i, null); 
 						:}
-					  | typespecifier:t ID:i error
-						{: 	parser.report_error("error no semi", null); 
+					  | typespecifier:t ID:i error:e
+						{: 	parser.report_error("expected semicolon", e); 
 							
 						:}
 
@@ -155,7 +155,7 @@ typespecifier		::= INT:i
 fundeclaration		::= typespecifier:t ID:i LPAREN params:p RPAREN compoundstmt:c 
 						{: RESULT = new FunctionDec(tleft, tright, t, i, p, c); :}
 					   | typespecifier:t ID:i LPAREN error:e RPAREN compoundstmt:c 
-						{: parser.report_error("Invalid Params",e); 
+						{: parser.report_error("Invalid Params", e); 
 						RESULT = new FunctionDec(tleft, tright, t, i, null, null); :}
 						
 
