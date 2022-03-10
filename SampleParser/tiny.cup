@@ -136,11 +136,12 @@ vardeclaration		::= typespecifier:t ID:i SEMI
 							RESULT = new ArrayDec(tleft, tright, t, i, num); 
 						:}
 					  | typespecifier:t ID:i SQLPAREN error:e SQRPAREN SEMI
-						{: 	parser.report_error("invalid value for array size", null); 
-							RESULT = new ArrayDec(tleft, tright, t, i, null); 
+						{: 	 parser.report_error("VarDeclartion: invalid array size at row:" + (eleft + 1) + ",col:" + eright + "", e);
+							//RESULT = new ArrayDec(tleft, tright, t, i, null); 
 						:}
-					  | typespecifier:t ID:i error
-						{: 	parser.report_error("error no semi", null); 
+					  | typespecifier:t ID:i error:e
+					  
+						{: 	 parser.report_error("VarDeclartion: missing semi colon at {row:" + (eleft + 1) + ",col:" + eright + "}", e); 
 							
 						:}
 
@@ -155,7 +156,7 @@ typespecifier		::= INT:i
 fundeclaration		::= typespecifier:t ID:i LPAREN params:p RPAREN compoundstmt:c 
 						{: RESULT = new FunctionDec(tleft, tright, t, i, p, c); :}
 					   | typespecifier:t ID:i LPAREN error:e RPAREN compoundstmt:c 
-						{: parser.report_error("Invalid Params",e); 
+						{: parser.report_error("FunDeclaration: Invalid Params at {row:" + (eleft + 1) + ",col:" + eright + "}", e); 
 						RESULT = new FunctionDec(tleft, tright, t, i, null, null); :}
 						
 
@@ -238,16 +239,16 @@ statement			::= expressionstmt:e
 						{: RESULT = i; :}
 					  | returnstmt:r
 						{: RESULT = r; :}
+					  | error:e SEMI
+					  {:
+					  	parser.report_error("Invalid Statement at {row:" + (eleft + 1) + ",col:" + eright + "}", e); 
+					  :}
 					  ;
 
 expressionstmt		::= expression:e SEMI 
 						{: RESULT = e; :}
 					  | SEMI 
-						{: RESULT = null; :}
-					  | expression:exp error:e 
-					  {: parser.report_error("Invalid Syntax Error: Expression Statement", e); :}
-					  |  error:e 
-					  {: parser.report_error("Invalid Syntax Error: Expression Statement", e); :}
+						
 					  ;
 
 selectionstmt      ::= IF:i LPAREN expression:e RPAREN statement:s
@@ -259,8 +260,11 @@ selectionstmt      ::= IF:i LPAREN expression:e RPAREN statement:s
 
 iterationstmt		::= WHILE:w LPAREN expression:e RPAREN statement:s
 						{: RESULT = new WhileExp(wleft,wright, e, s); :}
+						| WHILE:w error:e expression:exp RPAREN statement:s 
+						{: parser.report_error("Missing LPAREN at {row:" + (eleft + 1) + ",col:" + eright + "}", e); :}
 						| WHILE:w LPAREN error:e RPAREN statement:s 
-						{: parser.report_error("Invalid expression: while statement", e); :}
+						{: parser.report_error("Invalid Expression at {row:" + (eleft + 1) + ",col:" + eright + "}", e); :}
+						
 					  ;
 
 returnstmt			::= RETURN:r expression:e SEMI 
