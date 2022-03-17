@@ -10,6 +10,18 @@ public class SemanticAnalyzer implements AbsynVisitor {
         symbolTable = new HashMap<String, ArrayList<NodeType>>();
     }
 
+    private void insertToSymbolTable(NodeType node) {
+        if (symbolTable.containsKey(node.name)) {
+            ArrayList<NodeType> list = symbolTable.get(node.name);
+            list.add(node);
+            symbolTable.put(node.name, list);
+        } else {
+            ArrayList<NodeType> list = new ArrayList<NodeType>();
+            list.add(node);
+            symbolTable.put(node.name, list);
+        }
+    }
+
     final static int SPACES = 4;
 
     private void indent(int level) {
@@ -103,6 +115,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
         // System.out.println("VarExp: ");
         // level++;
         exp.variable.accept(this, level);
+
     }
 
     public void visit(CallExp exp, int level) {
