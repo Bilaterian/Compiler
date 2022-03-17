@@ -11,13 +11,12 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
   public void visit(ExpList expList, int level) {
     while (expList != null) {
-	  try{
-		  expList.head.accept(this, level);
-		  expList = expList.tail;
-	  }
-      catch(Exception e){
-		  expList = expList.tail;
-	  }
+      try {
+        expList.head.accept(this, level);
+        expList = expList.tail;
+      } catch (Exception e) {
+        expList = expList.tail;
+      }
     }
   }
 
@@ -105,13 +104,12 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
     ExpList args = exp.args;
     while (args != null) {
-      try{
-		args.head.accept(this, level);
-		args = args.tail;
-	  }
-	  catch(Exception e){
-		args = args.tail;
-	  }
+      try {
+        args.head.accept(this, level);
+        args = args.tail;
+      } catch (Exception e) {
+        args = args.tail;
+      }
     }
 
   }
@@ -122,48 +120,44 @@ public class ShowTreeVisitor implements AbsynVisitor {
     level++;
     VarDecList decs = exp.decs;
     while (decs != null) {
-      try{
-		decs.head.accept(this, level);
-		decs = decs.tail;
-	  }
-	  catch(Exception e){
-		decs = decs.tail; 
-	  }
+      try {
+        decs.head.accept(this, level);
+        decs = decs.tail;
+      } catch (Exception e) {
+        decs = decs.tail;
+      }
     }
     ExpList exps = exp.exps;
     while (exps != null) {
-      try{
-		exps.head.accept(this, level);
-		exps = exps.tail;
-	  }
-	  catch(Exception e){
-		exps = exps.tail;
-	  }
+      try {
+        exps.head.accept(this, level);
+        exps = exps.tail;
+      } catch (Exception e) {
+        exps = exps.tail;
+      }
     }
 
   }
 
   public void visit(VarDecList varDecList, int level) {
     while (varDecList != null) {
-      try{
-		varDecList.head.accept(this, level);
-		varDecList = varDecList.tail;
-	  }
-	  catch(Exception e){
-		varDecList = varDecList.tail;
-	  }
+      try {
+        varDecList.head.accept(this, level);
+        varDecList = varDecList.tail;
+      } catch (Exception e) {
+        varDecList = varDecList.tail;
+      }
     }
   }
 
   public void visit(DecList decList, int level) {
     while (decList != null) {
-      try{
-		decList.head.accept(this, level);
-		decList = decList.tail;
-	  }
-	  catch(Exception e){
-		decList = decList.tail;
-	  }
+      try {
+        decList.head.accept(this, level);
+        decList = decList.tail;
+      } catch (Exception e) {
+        decList = decList.tail;
+      }
     }
   }
 
@@ -174,13 +168,12 @@ public class ShowTreeVisitor implements AbsynVisitor {
     level++;
     VarDecList params = functionDec.params;
     while (params != null) {
-      try{
-		params.head.accept(this, level);
-		params = params.tail;
-	  }
-	  catch(Exception e){
-		params = params.tail;
-	  }
+      try {
+        params.head.accept(this, level);
+        params = params.tail;
+      } catch (Exception e) {
+        params = params.tail;
+      }
     }
     functionDec.body.accept(this, level);
   }
