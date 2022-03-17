@@ -10,7 +10,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
         symbolTable = new HashMap<String, ArrayList<NodeType>>();
     }
 
-    private void insertToSymbolTable(NodeType node) {
+    private void insertNodeToSymbolTable(NodeType node) {
         if (symbolTable.containsKey(node.name)) {
             ArrayList<NodeType> list = symbolTable.get(node.name);
             list.add(node);
@@ -20,6 +20,14 @@ public class SemanticAnalyzer implements AbsynVisitor {
             list.add(node);
             symbolTable.put(node.name, list);
         }
+    }
+
+    private NodeType getNodeFromSymbolTable(String name) {
+        if (symbolTable.containsKey(name)) {
+            ArrayList<NodeType> list = symbolTable.get(name);
+            return list.get(list.size() - 1);
+        }
+        return null;
     }
 
     final static int SPACES = 4;
