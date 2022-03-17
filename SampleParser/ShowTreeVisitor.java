@@ -235,7 +235,12 @@ public class ShowTreeVisitor implements AbsynVisitor {
 
   public void visit(ArrayDec dec, int level) {
     indent(level);
-    System.out.println("ArrayDec: " + dec.name);
+	if(dec.typ.typ == 0){
+		System.out.println("ArrayDec: " + "int " + dec.name + " [" + dec.size.value + "]");
+	}
+	else if(dec.typ.typ == 1){
+		System.out.println("ArrayDec: " + "void " + dec.name + " [" + dec.size.value + "]");
+	}
 
   }
 }
