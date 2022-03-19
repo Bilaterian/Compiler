@@ -10,26 +10,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
         symbolTable = new HashMap<String, ArrayList<NodeType>>();
     }
 
-    private void insertNodeToSymbolTable(NodeType node) {
-        if (symbolTable.containsKey(node.name)) {
-            ArrayList<NodeType> list = symbolTable.get(node.name);
-            list.add(node);
-            symbolTable.put(node.name, list);
-        } else {
-            ArrayList<NodeType> list = new ArrayList<NodeType>();
-            list.add(node);
-            symbolTable.put(node.name, list);
-        }
-    }
-
-    private NodeType getNodeFromSymbolTable(String name) {
-        if (symbolTable.containsKey(name)) {
-            ArrayList<NodeType> list = symbolTable.get(name);
-            return list.get(list.size() - 1);
-        }
-        return null;
-    }
-
     final static int SPACES = 4;
 
     private void indent(int level) {
@@ -267,4 +247,58 @@ public class SemanticAnalyzer implements AbsynVisitor {
         System.out.println("ArrayDec: " + dec.name);
 
     }
+	
+	
+//*******************SYMBOL TABLE HELPER FUNCTIONS*******************//
+	
+	private void insertNodeToSymbolTable(NodeType node) {
+        if (symbolTable.containsKey(node.name)) {
+            ArrayList<NodeType> list = symbolTable.get(node.name);
+            list.add(node);
+            symbolTable.put(node.name, list);
+        } else {
+            ArrayList<NodeType> list = new ArrayList<NodeType>();
+            list.add(node);
+            symbolTable.put(node.name, list);
+        }
+    }
+
+    private NodeType getNodeFromSymbolTable(String name) {
+        if (symbolTable.containsKey(name)) {
+            ArrayList<NodeType> list = symbolTable.get(name);
+            return list.get(list.size() - 1);
+        }
+        return null;
+    }
+	
+	private boolean hasKey(String key){
+		for(String name: symbolTable.keySet()){
+			if(key.equals(name)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean hasLevel(int level){
+		for(String name: symbolTable.keySet()){
+			for(int i = 0; i < symbolTable.get(name).size(); i++){
+				if(symbolTable.get(name).get(i).level == level){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	private void removeLevel(int level){
+		for(String name: symbolTable.keySet()){
+			for(int i = 0; i < symbolTable.get(name).size(); i++){
+				if(symbolTable.get(name).get(i).level == level){
+					symbolTable.get(name).remove(i);
+				}
+			}
+		}
+	}
+	
 }
