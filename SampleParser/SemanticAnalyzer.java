@@ -39,14 +39,14 @@ public class SemanticAnalyzer implements AbsynVisitor {
     public void visit(IfExp exp, int level) {
         //indent(level);
         //System.out.println("IfExp:");
-        level++;
+        //level++;
         exp.test.accept(this, level);
         exp.thenpart.accept(this, level);
 
         if (exp.elsepart != null) {
             //indent(level);
             //System.out.println("Else:");
-            level++;
+            //level++;
             exp.elsepart.accept(this, level);
         }
     }
@@ -124,7 +124,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     public void visit(CompoundExp exp, int level) {
         //indent(level);
         //System.out.println("CompoundExp: ");
-        level++;
+        //level++;
         VarDecList decs = exp.decs;
         while (decs != null) {
             try {
@@ -262,7 +262,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     public void visit(WhileExp exp, int level) {
         //indent(level);
         //System.out.println("WhileExp");
-        level++;
+        //level++;
         exp.test.accept(this, level);
         if (exp.body != null)
             exp.body.accept(this, level);
