@@ -29,22 +29,22 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(AssignExp exp, int level) {
-        //indent(level);
+        indent(level);
         //System.out.println("AssignExp:");
-        //level++;
-        //exp.lhs.accept(this, level);
-        //exp.rhs.accept(this, level);
+        level++;
+        exp.lhs.accept(this, level);
+        exp.rhs.accept(this, level);
     }
 
     public void visit(IfExp exp, int level) {
-        //indent(level);
+        indent(level);
         //System.out.println("IfExp:");
         level++;
         exp.test.accept(this, level);
         exp.thenpart.accept(this, level);
 
         if (exp.elsepart != null) {
-            //indent(level);
+            indent(level);
             //System.out.println("Else:");
             level++;
             exp.elsepart.accept(this, level);
@@ -52,12 +52,12 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(IntExp exp, int level) {
-        //indent(level);
+        indent(level);
         //System.out.println("IntExp: " + exp.value);
     }
 
     public void visit(OpExp exp, int level) {
-        //indent(level);
+        indent(level);
         //System.out.print("OpExp:");
         switch (exp.op) {
             case OpExp.PLUS:
@@ -93,22 +93,22 @@ public class SemanticAnalyzer implements AbsynVisitor {
             default:
                 //System.out.println("Unrecognized operator at line " + exp.row + " and column " + exp.col);
         }
-        //level++;
-        //exp.left.accept(this, level);
-        //exp.right.accept(this, level);
+        level++;
+        exp.left.accept(this, level);
+        exp.right.accept(this, level);
     }
 
     public void visit(VarExp exp, int level) {
-        //indent(level);
+        indent(level);
         //System.out.println("VarExp: ");
-        //level++;
-        //exp.variable.accept(this, level);
+        level++;
+        exp.variable.accept(this, level);
     }
 
     public void visit(CallExp exp, int level) {
-        //indent(level);
+        indent(level);
         //System.out.println("CallExp: " + exp.func);
-        //level++;
+        level++;
 
         ExpList args = exp.args;
         while (args != null) {
@@ -171,6 +171,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
     public void visit(FunctionDec functionDec, int level) {
         indent(level);
         //System.out.println("FunctionDec: " + functionDec.func);
+		NodeType node = new NodeType(dec.func, dec, level);
+		insertNodeToSymbolTable(node);
+		
         visit(functionDec.result, level);
         level++;
         VarDecList params = functionDec.params;
@@ -186,9 +189,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(IndexVar indexVar, int level) {
-        //indent(level);
+        indent(level);
         //System.out.println("IndexVar: " + indexVar.name);
-        //level++;
+        level++;
         //indexVar.index.accept(this, level);
     }
 
@@ -213,15 +216,17 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(ReturnExp exp, int level) {
-        //indent(level);
+        indent(level);
         //System.out.println("ReturnExp: ");
-        //level++;
+        level++;
         //if (exp.exp != null)
             //exp.exp.accept(this, level);
     }
 
     public void visit(SimpleDec dec, int level) {
         indent(level);
+		NodeType node = new NodeType(dec.name, dec, level);
+		insertNodeToSymbolTable(node);
         //System.out.println("SimpleDec: " + dec.name);
 
     }
@@ -242,6 +247,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
     public void visit(ArrayDec dec, int level) {
         indent(level);
+		NodeType node = new NodeType(dec.name, dec, level);
+		insertNodeToSymbolTable(node);
         //System.out.println("ArrayDec: " + dec.name);
     }
 	
@@ -267,15 +274,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
         }
         return null;
     }
-	
-	private boolean hasKey(String key){
-		for(String name: symbolTable.keySet()){
-			if(key.equals(name)){
-				return true;
-			}
-		}
-		return false;
-	}
 	
 	private boolean hasLevel(int level){
 		for(String name: symbolTable.keySet()){
