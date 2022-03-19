@@ -29,22 +29,22 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(AssignExp exp, int level) {
-        indent(level);
+        //indent(level);
         //System.out.println("AssignExp:");
-        level++;
+        //level++;
         exp.lhs.accept(this, level);
         exp.rhs.accept(this, level);
     }
 
     public void visit(IfExp exp, int level) {
-        indent(level);
+        //indent(level);
         //System.out.println("IfExp:");
         level++;
         exp.test.accept(this, level);
         exp.thenpart.accept(this, level);
 
         if (exp.elsepart != null) {
-            indent(level);
+            //indent(level);
             //System.out.println("Else:");
             level++;
             exp.elsepart.accept(this, level);
@@ -52,12 +52,12 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(IntExp exp, int level) {
-        indent(level);
+        //indent(level);
         //System.out.println("IntExp: " + exp.value);
     }
 
     public void visit(OpExp exp, int level) {
-        indent(level);
+        //indent(level);
         //System.out.print("OpExp:");
         switch (exp.op) {
             case OpExp.PLUS:
@@ -93,22 +93,22 @@ public class SemanticAnalyzer implements AbsynVisitor {
             default:
                 //System.out.println("Unrecognized operator at line " + exp.row + " and column " + exp.col);
         }
-        level++;
+        //level++;
         exp.left.accept(this, level);
         exp.right.accept(this, level);
     }
 
     public void visit(VarExp exp, int level) {
-        indent(level);
+        //indent(level);
         //System.out.println("VarExp: ");
-        level++;
+        //level++;
         exp.variable.accept(this, level);
     }
 
     public void visit(CallExp exp, int level) {
-        indent(level);
+        //indent(level);
         //System.out.println("CallExp: " + exp.func);
-        level++;
+        //level++;
 
         ExpList args = exp.args;
         while (args != null) {
@@ -122,7 +122,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(CompoundExp exp, int level) {
-        indent(level);
+        //indent(level);
         //System.out.println("CompoundExp: ");
         level++;
         VarDecList decs = exp.decs;
@@ -169,10 +169,22 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(FunctionDec functionDec, int level) {
-        indent(level);
         //System.out.println("FunctionDec: " + functionDec.func);
-		NodeType node = new NodeType(dec.func, dec, level);
+		NodeType node = new NodeType(functionDec.func, functionDec, level);
+		
+		if(hasLevel(level + 1) == true){
+			indent(level);
+			System.out.println("Leaving the block");
+			removeLevel(level + 1);
+		}
+		if(hasLevel(level) == false){
+			indent(level);
+			System.out.println("Entering a new block:");
+		}
+			
 		insertNodeToSymbolTable(node);
+		indent(level);
+		System.out.println(functionDec.func + ": ("+ getStringFromParams(functionDec.params) + ") -> " + printType(functionDec.result.typ));
 		
         visit(functionDec.result, level);
         level++;
@@ -189,10 +201,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(IndexVar indexVar, int level) {
-        indent(level);
+        //indent(level);
         //System.out.println("IndexVar: " + indexVar.name);
-        level++;
-        //indexVar.index.accept(this, level);
+        //level++;
+        indexVar.index.accept(this, level);
     }
 
     public void visit(NameTy nameTy, int level) {
@@ -216,17 +228,28 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(ReturnExp exp, int level) {
-        indent(level);
+        //indent(level);
         //System.out.println("ReturnExp: ");
-        level++;
-        //if (exp.exp != null)
-            //exp.exp.accept(this, level);
+        //level++;
+        if (exp.exp != null)
+            exp.exp.accept(this, level);
     }
 
     public void visit(SimpleDec dec, int level) {
-        indent(level);
 		NodeType node = new NodeType(dec.name, dec, level);
+		if(hasLevel(level + 1) == true){
+			indent(level);
+			System.out.println("Leaving the block");
+			removeLevel(level + 1);
+		}
+		if(hasLevel(level) == false){
+			indent(level);
+			System.out.println("Entering a new block:");
+		}
+		
 		insertNodeToSymbolTable(node);
+		indent(level);
+		System.out.println(dec.name + ": " + printType(dec.typ.typ));
         //System.out.println("SimpleDec: " + dec.name);
 
     }
@@ -237,7 +260,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(WhileExp exp, int level) {
-        indent(level);
+        //indent(level);
         //System.out.println("WhileExp");
         level++;
         exp.test.accept(this, level);
@@ -246,9 +269,20 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(ArrayDec dec, int level) {
-        indent(level);
 		NodeType node = new NodeType(dec.name, dec, level);
+		if(hasLevel(level + 1) == true){
+			indent(level);
+			System.out.println("Leaving the block");
+			removeLevel(level + 1);
+		}
+		if(hasLevel(level) == false){
+			indent(level);
+			System.out.println("Entering a new block:");
+		}
+		
 		insertNodeToSymbolTable(node);
+		indent(level);
+		System.out.println(dec.name + ": " + printType(dec.typ.typ));
         //System.out.println("ArrayDec: " + dec.name);
     }
 	
@@ -294,6 +328,36 @@ public class SemanticAnalyzer implements AbsynVisitor {
 				}
 			}
 		}
+	}
+	
+	private String printType(int typ){
+		if(typ == 0){
+			return "int";
+		}
+		else{
+			return "void";
+		}
+	}
+	
+	private String getStringFromParams(VarDecList params){
+		String paramString = "";
+		if(params == null){
+			paramString = " ";
+		}
+		else{
+			while (params != null) {
+				try {
+					paramString += printType(params.head.typ.typ);
+					paramString += ",";
+					params = params.tail;
+				} 
+				catch (Exception e) {
+					params = params.tail;
+				}
+			}
+			paramString = paramString.substring(0, paramString.length() -1);
+		}
+		return paramString;
 	}
 	
 }

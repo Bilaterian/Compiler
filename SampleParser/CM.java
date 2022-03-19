@@ -23,9 +23,9 @@ class CM {
       parser p = new parser(new Lexer(new FileReader(argv[0])));
       Absyn result = (Absyn) (p.parse().value);
       if(hasS && result != null){
-		System.out.println("The abstract syntax tree is:");
-        ShowTreeVisitor visitor = new ShowTreeVisitor();
-        result.accept(visitor, 0);
+		//System.out.println("The abstract syntax tree is:");
+        //ShowTreeVisitor visitor = new ShowTreeVisitor();
+        //result.accept(visitor, 0);
 		System.out.println("Entering the global scope:");
 		SemanticAnalyzer semantics = new SemanticAnalyzer();
 		result.accept(semantics, 0);
