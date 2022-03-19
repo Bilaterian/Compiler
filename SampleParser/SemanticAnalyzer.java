@@ -29,22 +29,22 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(AssignExp exp, int level) {
-        indent(level);
-        ////System.out.println("AssignExp:");
-        level++;
-        exp.lhs.accept(this, level);
-        exp.rhs.accept(this, level);
+        //indent(level);
+        //System.out.println("AssignExp:");
+        //level++;
+        //exp.lhs.accept(this, level);
+        //exp.rhs.accept(this, level);
     }
 
     public void visit(IfExp exp, int level) {
-        indent(level);
+        //indent(level);
         //System.out.println("IfExp:");
         level++;
         exp.test.accept(this, level);
         exp.thenpart.accept(this, level);
 
         if (exp.elsepart != null) {
-            indent(level);
+            //indent(level);
             //System.out.println("Else:");
             level++;
             exp.elsepart.accept(this, level);
@@ -52,13 +52,13 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(IntExp exp, int level) {
-        indent(level);
+        //indent(level);
         //System.out.println("IntExp: " + exp.value);
     }
 
     public void visit(OpExp exp, int level) {
-        indent(level);
-        System.out.print("OpExp:");
+        //indent(level);
+        //System.out.print("OpExp:");
         switch (exp.op) {
             case OpExp.PLUS:
                 //System.out.println(" + ");
@@ -93,23 +93,22 @@ public class SemanticAnalyzer implements AbsynVisitor {
             default:
                 //System.out.println("Unrecognized operator at line " + exp.row + " and column " + exp.col);
         }
-        level++;
-        exp.left.accept(this, level);
-        exp.right.accept(this, level);
+        //level++;
+        //exp.left.accept(this, level);
+        //exp.right.accept(this, level);
     }
 
     public void visit(VarExp exp, int level) {
-        // indent(level);
-        // //System.out.println("VarExp: ");
-        // level++;
-        exp.variable.accept(this, level);
-
+        //indent(level);
+        //System.out.println("VarExp: ");
+        //level++;
+        //exp.variable.accept(this, level);
     }
 
     public void visit(CallExp exp, int level) {
-        indent(level);
+        //indent(level);
         //System.out.println("CallExp: " + exp.func);
-        level++;
+        //level++;
 
         ExpList args = exp.args;
         while (args != null) {
@@ -120,7 +119,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
                 args = args.tail;
             }
         }
-
     }
 
     public void visit(CompoundExp exp, int level) {
@@ -188,16 +186,16 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(IndexVar indexVar, int level) {
-        indent(level);
+        //indent(level);
         //System.out.println("IndexVar: " + indexVar.name);
-        level++;
-        indexVar.index.accept(this, level);
+        //level++;
+        //indexVar.index.accept(this, level);
     }
 
     public void visit(NameTy nameTy, int level) {
-        indent(level);
-        System.out.print("NameTy:");
-        switch (nameTy.typ) {
+        //indent(level);
+        //System.out.print("NameTy:");
+        /*switch (nameTy.typ) {
             case NameTy.INT:
                 //System.out.println(" INT ");
                 break;
@@ -206,20 +204,20 @@ public class SemanticAnalyzer implements AbsynVisitor {
                 break;
             default:
                 //System.out.println("Unrecognized name type at line " + nameTy.row + " and column " + nameTy.col);
-        }
+        }*/
     }
 
     public void visit(NilExp exp, int level) {
-        indent(level);
+        //indent(level);
         //System.out.println("NilExp");
     }
 
     public void visit(ReturnExp exp, int level) {
-        indent(level);
+        //indent(level);
         //System.out.println("ReturnExp: ");
-        level++;
-        if (exp.exp != null)
-            exp.exp.accept(this, level);
+        //level++;
+        //if (exp.exp != null)
+            //exp.exp.accept(this, level);
     }
 
     public void visit(SimpleDec dec, int level) {
@@ -229,7 +227,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(SimpleVar var, int level) {
-        indent(level);
+        //indent(level);
         //System.out.println("SimpleVar: " + var.name);
     }
 
@@ -245,7 +243,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
     public void visit(ArrayDec dec, int level) {
         indent(level);
         //System.out.println("ArrayDec: " + dec.name);
-
     }
 	
 	
