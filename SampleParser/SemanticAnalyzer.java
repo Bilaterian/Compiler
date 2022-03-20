@@ -41,20 +41,21 @@ public class SemanticAnalyzer implements AbsynVisitor {
         //System.out.println("IfExp:");
         level++;
 		indent(level);
-		System.out.println("Entering a new block:");
-        exp.test.accept(this, level + 1);
-        exp.thenpart.accept(this, level + 1);
+		System.out.println("Entering a new block: ");
+        exp.test.accept(this, level);
+        exp.thenpart.accept(this, level);
 
         if (exp.elsepart != null) {
             //indent(level);
             //System.out.println("Else:");
             level++;
-            exp.elsepart.accept(this, level + 1);
+            exp.elsepart.accept(this, level);
+			removeLevel(level);
+			level = level - 1;
         }
-		indent(level - 1);
+		indent(level);
 		System.out.println("Leaving the block");
-		removeLevel(level + 2);
-		removeLevel(level + 1);
+		removeLevel(level);
     }
 
     public void visit(IntExp exp, int level) {
@@ -185,25 +186,25 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		NodeType node = new NodeType(functionDec.func, functionDec, level);
 			
 		insertNodeToSymbolTable(node);
-		indent(level);
+		indent(level + 1);
 		System.out.println(functionDec.func + ": ("+ getStringFromParams(functionDec.params) + ") -> " + printType(functionDec.result.typ));
         visit(functionDec.result, level);
         level++;
 		indent(level);
-		System.out.println("Entering the scope for function " + functionDec.func + ":");
+		System.out.println("Entering the scope for function " + functionDec.func + ": ");
         VarDecList params = functionDec.params;
         while (params != null) {
             try {
-                params.head.accept(this, level + 1);
+                params.head.accept(this, level);
                 params = params.tail;
             } catch (Exception e) {
                 params = params.tail;
             }
         }
-        functionDec.body.accept(this, level + 1);
+        functionDec.body.accept(this, level);
 		indent(level);
 		System.out.println("Leaving the function scope");
-		removeLevel(level + 1);
+		removeLevel(level);
     }
 
     public void visit(IndexVar indexVar, int level) {
@@ -244,7 +245,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     public void visit(SimpleDec dec, int level) {
 		NodeType node = new NodeType(dec.name, dec, level);
 		insertNodeToSymbolTable(node);
-		indent(level);
+		indent(level + 1);
 		System.out.println(dec.name + ": " + printType(dec.typ.typ));
         //System.out.println("SimpleDec: " + dec.name);
 
@@ -260,19 +261,19 @@ public class SemanticAnalyzer implements AbsynVisitor {
         //System.out.println("WhileExp");
         level++;
 		indent(level);
-		System.out.println("Entering a new block:");
-        exp.test.accept(this, level + 1);
+		System.out.println("Entering a new block: ");
+        exp.test.accept(this, level);
         if (exp.body != null)
-            exp.body.accept(this, level + 1);
+            exp.body.accept(this, level);
 		indent(level);
 		System.out.println("Leaving the block");
-		removeLevel(level + 1);
+		removeLevel(level);
     }
 
     public void visit(ArrayDec dec, int level) {
 		NodeType node = new NodeType(dec.name, dec, level);
 		insertNodeToSymbolTable(node);
-		indent(level);
+		indent(level + 1);
 		System.out.println(dec.name + ": " + printType(dec.typ.typ));
         //System.out.println("ArrayDec: " + dec.name);
     }
