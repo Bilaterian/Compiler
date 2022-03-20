@@ -39,16 +39,22 @@ public class SemanticAnalyzer implements AbsynVisitor {
     public void visit(IfExp exp, int level) {
         //indent(level);
         //System.out.println("IfExp:");
-        //level++;
-        exp.test.accept(this, level);
-        exp.thenpart.accept(this, level);
+        level++;
+		indent(level);
+		System.out.println("Entering a new block:");
+        exp.test.accept(this, level + 1);
+        exp.thenpart.accept(this, level + 1);
 
         if (exp.elsepart != null) {
             //indent(level);
             //System.out.println("Else:");
-            //level++;
-            exp.elsepart.accept(this, level);
+            level++;
+            exp.elsepart.accept(this, level + 1);
         }
+		indent(level - 1);
+		System.out.println("Leaving the block");
+		removeLevel(level + 2);
+		removeLevel(level + 1);
     }
 
     public void visit(IntExp exp, int level) {
@@ -158,6 +164,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(DecList decList, int level) {
+		if(level == 0){
+			System.out.println("Entering the global scope:");
+		}
         while (decList != null) {
             try {
                 decList.head.accept(this, level);
@@ -166,38 +175,35 @@ public class SemanticAnalyzer implements AbsynVisitor {
                 decList = decList.tail;
             }
         }
+		if(level == 0){
+			System.out.println("Leaving the global scope");
+		}
     }
 
     public void visit(FunctionDec functionDec, int level) {
         //System.out.println("FunctionDec: " + functionDec.func);
 		NodeType node = new NodeType(functionDec.func, functionDec, level);
-		
-		if(hasLevel(level + 1) == true){
-			indent(level);
-			System.out.println("Leaving the block");
-			removeLevel(level + 1);
-		}
-		if(hasLevel(level) == false){
-			indent(level);
-			System.out.println("Entering a new block:");
-		}
 			
 		insertNodeToSymbolTable(node);
 		indent(level);
 		System.out.println(functionDec.func + ": ("+ getStringFromParams(functionDec.params) + ") -> " + printType(functionDec.result.typ));
-		
         visit(functionDec.result, level);
         level++;
+		indent(level);
+		System.out.println("Entering the scope for function " + functionDec.func + ":");
         VarDecList params = functionDec.params;
         while (params != null) {
             try {
-                params.head.accept(this, level);
+                params.head.accept(this, level + 1);
                 params = params.tail;
             } catch (Exception e) {
                 params = params.tail;
             }
         }
-        functionDec.body.accept(this, level);
+        functionDec.body.accept(this, level + 1);
+		indent(level);
+		System.out.println("Leaving the function scope");
+		removeLevel(level + 1);
     }
 
     public void visit(IndexVar indexVar, int level) {
@@ -237,16 +243,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
     public void visit(SimpleDec dec, int level) {
 		NodeType node = new NodeType(dec.name, dec, level);
-		if(hasLevel(level + 1) == true){
-			indent(level);
-			System.out.println("Leaving the block");
-			removeLevel(level + 1);
-		}
-		if(hasLevel(level) == false){
-			indent(level);
-			System.out.println("Entering a new block:");
-		}
-		
 		insertNodeToSymbolTable(node);
 		indent(level);
 		System.out.println(dec.name + ": " + printType(dec.typ.typ));
@@ -262,24 +258,19 @@ public class SemanticAnalyzer implements AbsynVisitor {
     public void visit(WhileExp exp, int level) {
         //indent(level);
         //System.out.println("WhileExp");
-        //level++;
-        exp.test.accept(this, level);
+        level++;
+		indent(level);
+		System.out.println("Entering a new block:");
+        exp.test.accept(this, level + 1);
         if (exp.body != null)
-            exp.body.accept(this, level);
+            exp.body.accept(this, level + 1);
+		indent(level);
+		System.out.println("Leaving the block");
+		removeLevel(level + 1);
     }
 
     public void visit(ArrayDec dec, int level) {
 		NodeType node = new NodeType(dec.name, dec, level);
-		if(hasLevel(level + 1) == true){
-			indent(level);
-			System.out.println("Leaving the block");
-			removeLevel(level + 1);
-		}
-		if(hasLevel(level) == false){
-			indent(level);
-			System.out.println("Entering a new block:");
-		}
-		
 		insertNodeToSymbolTable(node);
 		indent(level);
 		System.out.println(dec.name + ": " + printType(dec.typ.typ));
