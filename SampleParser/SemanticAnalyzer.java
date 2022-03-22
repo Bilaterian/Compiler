@@ -33,6 +33,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
         exp.rhs.accept(this, level);
 		
 		//DO CHECK HERE
+		if(!(getType(exp.lhs.dtype) == getType(exp.rhs.dtype))){
+			System.out.println("Invalid integer value at line " + exp.row + " and column " + exp.col);
+			System.out.println("lhs: " + exp.lhs.dtype + " rhs: " + exp.rhs.dtype);
+		}
     }
 
     public void visit(IfExp exp, int level) {
@@ -67,7 +71,14 @@ public class SemanticAnalyzer implements AbsynVisitor {
         exp.left.accept(this, level);
         exp.right.accept(this, level);
 		
+		NameTy type = new NameTy(exp.row, exp.col, 0);
+		exp.dtype = new SimpleDec(exp.row, exp.col, type, "null");
+		
 		//DO CHECK HERE
+		if(!((getType(exp.left.dtype) == 0) && (getType(exp.right.dtype) == 0))){
+			System.out.println("Invalid integer value at line " + exp.row + " and column " + exp.col);
+			System.out.println("left: " + exp.left.dtype + " right: " + exp.right.dtype);
+		}
     }
 
     public void visit(VarExp exp, int level) {
@@ -180,13 +191,16 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(NilExp exp, int level) {
-		exp.dtype = new SimpleDec(exp.row, exp.col, NameTy(exp.row, exp.col, 1), "null");
+		NameTy type = new NameTy(exp.row, exp.col, 1);
+		exp.dtype = new SimpleDec(exp.row, exp.col, type, "null");
     }
 
     public void visit(ReturnExp exp, int level) {
         if (exp.exp != null)
             exp.exp.accept(this, level);
 			//DO CHECK HERE
+			exp.dtype = exp.exp.dtype;
+			//check if function call was made in the scope previous
     }
 
     public void visit(SimpleDec dec, int level) {
@@ -199,7 +213,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(SimpleVar var, int level) {
-		Dec dtype 
+		
     }
 
     public void visit(WhileExp exp, int level) {
@@ -296,4 +310,34 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		return paramString;
 	}
 	
+	private int getType(Dec dtype) {
+        if (dtype instanceof SimpleDec) {
+            SimpleDec sd = (SimpleDec) dtype;
+            if (sd.typ.typ == 0) {
+                return NameTy.INT;
+            }
+			else{
+				return NameTy.VOID;
+			}
+        }
+		else if (dtype instanceof ArrayDec) {
+            ArrayDec sd = (ArrayDec) dtype;
+            if (sd.typ.typ == 0) {
+                return NameTy.INT;
+            }
+			else{
+				return NameTy.VOID;
+			}
+        } 
+		else if (dtype instanceof FunctionDec) {
+            FunctionDec fd = (FunctionDec) dtype;
+            if (fd.result.typ == 0) {
+                return NameTy.INT;
+            }
+			else{
+				return NameTy.VOID;
+			}
+        }
+        return NameTy.VOID;
+    }
 }
