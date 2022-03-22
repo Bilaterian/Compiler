@@ -277,7 +277,7 @@ returnstmt			::= RETURN:r expression:e SEMI
 					  ;
 
 expression			::= var:v EQUAL expression:e
-						{: RESULT = new AssignExp(vleft, vright, new VarExp(vleft,vright,v),null); :}
+						{: RESULT = new AssignExp(vleft, vright, new VarExp(vleft,vright,v),e); :}
 					  | simpleexpression:s 
 						{:RESULT = s; :}
 					  ;
