@@ -131,14 +131,20 @@ public class SemanticAnalyzer implements AbsynVisitor {
             }
         }
 		
-		
 		//DO CHECK HERE
 		if(!ifFunctionExists(exp.func, checkArgs)){
 			System.out.println("Invalid function call at line " + exp.row + " and column " + exp.col);
 		}
 		
 		//get temp
-		//exp.dtype = new FunctionDec(exp.row, exp.col, temp.result, temp.func, temp.params, temp.body);
+		NameTy type = new NameTy(exp.row, exp.col, 0);
+		if(exp.func.equals("input") || exp.func.equals("output")){//prebuilt funcitons that we don't control
+			exp.dtype = new FunctionDec(exp.row, exp.col, type, exp.func, null, null);
+		}
+		else{
+			NodeType function = getFunc(exp.func, checkArgs);
+			exp.dtype = (FunctionDec) function.def;
+		}
     }
 
     public void visit(CompoundExp exp, int level) {
@@ -161,7 +167,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
             }
         }
 
-		//DO CHECK HERE
     }
 
     public void visit(VarDecList varDecList, int level) {
@@ -234,7 +239,15 @@ public class SemanticAnalyzer implements AbsynVisitor {
         if (exp.exp != null){
 			exp.exp.accept(this, level);
 			//DO CHECK HERE
+			//look for the latest function call
 			exp.dtype = exp.exp.dtype;
+			
+			if(matchFunctionToType(level - 1, getType(exp.dtype)) == false){
+				System.out.println("Invalid return expression at line " + exp.row + " and column " + exp.col);
+			}
+			else if(getType(exp.dtype) == 1){
+				System.out.println("Unexpected return function found at line " + exp.row + " and column " + exp.col);
+			}
 		}
     }
 
@@ -376,46 +389,40 @@ public class SemanticAnalyzer implements AbsynVisitor {
         return NameTy.VOID;
     }
 	private boolean ifFunctionExists(String func, ArrayList<Integer> checkArgs){
-		
 		if(func.equals("input") || func.equals("output")){//prebuilt funcitons that we don't control
 			return true;
 		}
 		
 		for(String name: symbolTable.keySet()){
-			for(int i = 0; i < symbolTable.get(name).size(); i++){
-				if(symbolTable.get(name).get(i).def instanceof FunctionDec){
-					FunctionDec fd = (FunctionDec) symbolTable.get(name).get(i).def;
-					
-					//length checks
-					if(checkArgs.size() == 0){
-						if(fd.params == null){//same lengths but no arguments, don't bother
-							return true;
-						}
-						else{
-							System.out.println("param lengths of 0 arent the same");
-							return false;
-						}
-					}
-					if(getVarDecListLength(fd.params) == checkArgs.size()){//same lengths
-						//check if list contains types in order
-						ArrayList<Integer> paramList = getParamTypes(fd.params);
-						for(int j = 0; j < paramList.size(); j++){
-							if(!checkArgs.get(j).equals(paramList.get(j))){
-								System.out.println("param " + j + " type mismatch");
+			if(name.equals(func)){
+				for(int i = 0; i < symbolTable.get(name).size(); i++){
+					if(symbolTable.get(name).get(i).def instanceof FunctionDec){
+						FunctionDec fd = (FunctionDec) symbolTable.get(name).get(i).def;
+						//length checks
+						if(checkArgs.size() == 0){
+							if(fd.params == null){//same lengths but no arguments, don't bother
+								return true;
+							}
+							else{
+								System.out.println("no matching function");
 								return false;
+							}
+						}		
+						if(getVarDecListLength(fd.params) == checkArgs.size()){//same lengths
+							//check if list contains types in order
+							ArrayList<Integer> paramList = getParamTypes(fd.params);
+							for(int j = 0; j < paramList.size(); j++){
+								if(!checkArgs.get(j).equals(paramList.get(j))){
+									continue;
+								}
 							}
 							return true;
 						}
 					}
-					else{
-						System.out.println("function params of inequal length");
-						return false;
-					}
-					
 				}
 			}
 		}
-		System.out.println("no matching function name");
+		System.out.println("no matching function");
 		return false;
 	}
 	
@@ -453,4 +460,68 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		
 		return paramList;
 	}
+	
+	private NodeType getFunc(String funcName, ArrayList<Integer> checkArgs){  //we want to match 
+		for(String name: symbolTable.keySet()){
+			if(name.equals(funcName)){
+				for(int i = 0; i < symbolTable.get(name).size(); i++){
+					if(symbolTable.get(name).get(i).def instanceof FunctionDec){
+						FunctionDec fd = (FunctionDec) symbolTable.get(name).get(i).def;
+
+						if(checkArgs.size() == 0){
+							if(fd.params == null){//same lengths but no arguments, don't bother
+								return symbolTable.get(name).get(i);
+							}
+						}
+						if(getVarDecListLength(fd.params) == checkArgs.size()){//same lengths
+							//check if list contains types in order
+							ArrayList<Integer> paramList = getParamTypes(fd.params);
+							for(int j = 0; j < paramList.size(); j++){
+								if(!checkArgs.get(j).equals(paramList.get(j))){
+									continue;
+								}
+							}
+							return symbolTable.get(name).get(i);
+						}
+					}
+				}			
+			}
+		}
+		FunctionDec nullFunc = new FunctionDec(-1, -1, null, funcName, null, null);
+		NodeType nullNode = new NodeType(funcName, nullFunc, -1);//placeholder that shouldn't be reached
+		return nullNode;
+	}
+	
+	private boolean matchFunctionToType(int level, int type){
+		int latest = 0;
+		for(String name: symbolTable.keySet()){
+			for(int i = 0; i < symbolTable.get(name).size(); i++){
+				if(symbolTable.get(name).get(i).level == level){
+					if(symbolTable.get(name).get(i).def instanceof FunctionDec){
+						latest = symbolTable.get(name).get(i).def.row;
+					}
+				}
+			}
+		}
+		for(String name: symbolTable.keySet()){
+			for(int i = 0; i < symbolTable.get(name).size(); i++){
+				if(symbolTable.get(name).get(i).level == level){
+					if(symbolTable.get(name).get(i).def instanceof FunctionDec){
+						if(latest == symbolTable.get(name).get(i).def.row){
+							//check dtypes here
+							if(getType(symbolTable.get(name).get(i).def) == type){
+								return true;
+							}
+							else{
+								return false;
+							} 
+						}
+					}
+				}
+			}
+		}
+		
+		return false;
+	}
+	
 }
