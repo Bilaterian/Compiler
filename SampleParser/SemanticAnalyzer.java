@@ -329,12 +329,28 @@ public class SemanticAnalyzer implements AbsynVisitor {
         return false;
     }
 
+	private void printNode(NodeType node){
+		System.out.print(node.name);
+		if(node.def instanceof SimpleDec){
+			System.out.print(" SimpleDec ");
+		}
+		else if(node.def instanceof ArrayDec){
+			System.out.print(" ArrayDec ");
+		}
+		else if(node.def instanceof FunctionDec){
+			System.out.print(" FunctionDec ");
+		}
+		System.out.println(node.level);
+	}
+
     private void removeLevel(int level) {
         for (String name : symbolTable.keySet()) {
             for (int i = 0; i < symbolTable.get(name).size(); i++) {
                 if (symbolTable.get(name).get(i).level == level) {
                     symbolTable.get(name).remove(i);
                 }
+				//DEBUG print here
+				printNode(symbolTable.get(name).get(i));
             }
         }
     }

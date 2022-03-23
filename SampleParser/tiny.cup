@@ -361,8 +361,14 @@ args				::= arglist:al
 						
 					  ;
 
-arglist				::= arglist:al COMMA expression:e 
-						{:RESULT = new ExpList(e, al); :}
-					  | expression:e 
-						{:RESULT = new ExpList(e, null); :}
-					  ;
+arglist              ::= arglist:al COMMA expression:e 
+                        {:
+                            ExpList t = al;
+                            while( t.tail != null)
+                                t = t.tail;
+                            t.tail = new ExpList(e, null);
+                            RESULT = al;
+                         :}
+                      | expression:e 
+                        {:RESULT = new ExpList(e, null); :}
+                      ;
