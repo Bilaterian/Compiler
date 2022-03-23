@@ -32,10 +32,23 @@ public class SemanticAnalyzer implements AbsynVisitor {
         exp.lhs.accept(this, level);
         exp.rhs.accept(this, level);
 		
+		if(exp.rhs.dtype instanceof ArrayDec){
+			ArrayDec temp = (ArrayDec) exp.rhs.dtype;
+			exp.dtype = new ArrayDec(exp.row, exp.col, temp.typ, temp.name, temp.size);
+		}
+		else if(exp.rhs.dtype instanceof SimpleDec){
+			SimpleDec temp = (SimpleDec) exp.rhs.dtype;
+			exp.dtype = new SimpleDec(exp.row, exp.col, temp.typ, temp.name);
+		}
+		else if(exp.rhs.dtype instanceof FunctionDec){
+			FunctionDec temp = (FunctionDec) exp.rhs.dtype;
+			exp.dtype = new FunctionDec(exp.row, exp.col, temp.result, temp.func, temp.params, temp.body);
+		}
+		
 		//DO CHECK HERE
 		if(!(getType(exp.lhs.dtype) == getType(exp.rhs.dtype))){
-			System.out.println("Invalid integer value at line " + exp.row + " and column " + exp.col);
-			System.out.println("lhs: " + exp.lhs.dtype + " rhs: " + exp.rhs.dtype);
+			System.out.println("Invalid assignment expression at line " + exp.row + " and column " + exp.col);
+			System.out.println("left: " + exp.lhs.dtype + " right: " + exp.rhs.dtype);
 		}
     }
 
@@ -58,11 +71,14 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(IntExp exp, int level) {
+		NameTy type = new NameTy(exp.row, exp.col, 0);
+		exp.dtype = new SimpleDec(exp.row, exp.col, type, exp.value);
+		
 		try{
 			int tester = Integer.parseInt(exp.value);
 		}
 		catch(Exception e){
-			System.out.println("Invalid integer value at line " + exp.row + " and column " + exp.col);
+			System.out.println("Invalid integer expression at line " + exp.row + " and column " + exp.col);
 		}
     }
 
@@ -76,31 +92,53 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		
 		//DO CHECK HERE
 		if(!((getType(exp.left.dtype) == 0) && (getType(exp.right.dtype) == 0))){
-			System.out.println("Invalid integer value at line " + exp.row + " and column " + exp.col);
-			System.out.println("left: " + exp.left.dtype + " right: " + exp.right.dtype);
+			System.out.println("Invalid operation expression at line " + exp.row + " and column " + exp.col);
+			System.out.println("left: " + getType(exp.left.dtype) + " right: " + getType(exp.right.dtype) );
+			System.out.println("left: " + exp.left.dtype + " right: " + exp.right.dtype );
 		}
     }
 
     public void visit(VarExp exp, int level) {
-
         exp.variable.accept(this, level);
 		
 		//DO CHECK HERE
+		NameTy type = new NameTy(exp.row, exp.col, 0);
+		exp.dtype = new SimpleDec(exp.row, exp.col, type, exp.variable.name);
+		
+		
+		for(String name: symbolTable.keySet()){
+			for(int i = 0; i < symbolTable.get(name).size(); i++){
+				if(symbolTable.get(name).get(i).name.equals(exp.variable.name)){
+					if(getType(symbolTable.get(name).get(i).def) == 1){
+						System.out.println("Invalid integer value at line " + exp.row + " and column " + exp.col);
+					}
+				}
+			}
+		}
     }
 
     public void visit(CallExp exp, int level) {
-
+		ArrayList<Integer> checkArgs = new ArrayList<Integer>();
+		
         ExpList args = exp.args;
         while (args != null) {
             try {
                 args.head.accept(this, level);
+				checkArgs.add(new Integer(getType(args.head.dtype)));
                 args = args.tail;
             } catch (Exception e) {
                 args = args.tail;
             }
         }
 		
+		
 		//DO CHECK HERE
+		if(!ifFunctionExists(exp.func, checkArgs)){
+			System.out.println("Invalid function call at line " + exp.row + " and column " + exp.col);
+		}
+		
+		//get temp
+		//exp.dtype = new FunctionDec(exp.row, exp.col, temp.result, temp.func, temp.params, temp.body);
     }
 
     public void visit(CompoundExp exp, int level) {
@@ -155,7 +193,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(FunctionDec functionDec, int level) {
-        //System.out.println("FunctionDec: " + functionDec.func);
 		NodeType node = new NodeType(functionDec.func, functionDec, level);
 			
 		insertNodeToSymbolTable(node);
@@ -182,8 +219,6 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
     public void visit(IndexVar indexVar, int level) {
         indexVar.index.accept(this, level);
-		
-		//DO CHECK HERE
     }
 
     public void visit(NameTy nameTy, int level) {
@@ -196,11 +231,11 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(ReturnExp exp, int level) {
-        if (exp.exp != null)
-            exp.exp.accept(this, level);
+        if (exp.exp != null){
+			exp.exp.accept(this, level);
 			//DO CHECK HERE
 			exp.dtype = exp.exp.dtype;
-			//check if function call was made in the scope previous
+		}
     }
 
     public void visit(SimpleDec dec, int level) {
@@ -340,4 +375,82 @@ public class SemanticAnalyzer implements AbsynVisitor {
         }
         return NameTy.VOID;
     }
+	private boolean ifFunctionExists(String func, ArrayList<Integer> checkArgs){
+		
+		if(func.equals("input") || func.equals("output")){//prebuilt funcitons that we don't control
+			return true;
+		}
+		
+		for(String name: symbolTable.keySet()){
+			for(int i = 0; i < symbolTable.get(name).size(); i++){
+				if(symbolTable.get(name).get(i).def instanceof FunctionDec){
+					FunctionDec fd = (FunctionDec) symbolTable.get(name).get(i).def;
+					
+					//length checks
+					if(checkArgs.size() == 0){
+						if(fd.params == null){//same lengths but no arguments, don't bother
+							return true;
+						}
+						else{
+							System.out.println("param lengths of 0 arent the same");
+							return false;
+						}
+					}
+					if(getVarDecListLength(fd.params) == checkArgs.size()){//same lengths
+						//check if list contains types in order
+						ArrayList<Integer> paramList = getParamTypes(fd.params);
+						for(int j = 0; j < paramList.size(); j++){
+							if(!checkArgs.get(j).equals(paramList.get(j))){
+								System.out.println("param " + j + " type mismatch");
+								return false;
+							}
+							return true;
+						}
+					}
+					else{
+						System.out.println("function params of inequal length");
+						return false;
+					}
+					
+				}
+			}
+		}
+		System.out.println("no matching function name");
+		return false;
+	}
+	
+	private int getVarDecListLength(VarDecList params){
+		int i = 0;
+		if(params == null){
+			return 0;
+		}
+		else{
+			while (params != null) {
+				try {
+					params = params.tail;
+					i = i + 1;
+				} 
+				catch (Exception e) {
+					params = params.tail;
+				}
+			}
+			return i;
+		}
+	}
+	
+	private ArrayList<Integer> getParamTypes(VarDecList params){
+		ArrayList<Integer> paramList = new ArrayList<Integer>();
+		
+		while (params != null) {
+			try {
+				paramList.add(new Integer(getType(params.head)));
+				params = params.tail;
+			} 
+			catch (Exception e) {
+				params = params.tail;
+			}
+		}
+		
+		return paramList;
+	}
 }
