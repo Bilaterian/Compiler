@@ -244,6 +244,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 					+ functionDec.func + " has wrong return type ");
 		}
 		hasR = 1;
+
 		indent(level);
 		System.out.println("Leaving the function scope");
 		removeLevel(level);
@@ -280,8 +281,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	public void visit(SimpleDec dec, int level) {
 		NodeType node = new NodeType(dec.name, dec, level);
 		if (containsDec(dec.name)) {
-			System.err.println("ERROR [row=" + dec.row + ", col=" + dec.col + "]: "
-					+ dec.name + " is already defined ");
+			// System.err.println("ERROR [row=" + dec.row + ", col=" + dec.col + "]: "
+			// + dec.name + " is already defined ");
 		}
 		insertNodeToSymbolTable(node);
 		indent(level + 1);
@@ -318,7 +319,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		NodeType node = new NodeType(dec.name, dec, level);
 		insertNodeToSymbolTable(node);
 		indent(level + 1);
-		System.out.println(dec.name + ": " + printType(dec.typ.typ));
+
+		System.out.println(dec.name + "[" + dec.size.value + "]: " + printType(dec.typ.typ));
+
 		// System.out.println("ArrayDec: " + dec.name);
 	}
 
@@ -380,7 +383,12 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		} else {
 			while (params != null) {
 				try {
-					paramString += printType(params.head.typ.typ);
+					if (params.head instanceof ArrayDec) {
+						paramString += printType(params.head.typ.typ);
+						paramString += "[" + ((ArrayDec) params.head).size.value + "]";
+					} else {
+						paramString += printType(params.head.typ.typ);
+					}
 					paramString += ",";
 					params = params.tail;
 				} catch (Exception e) {
