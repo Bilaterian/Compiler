@@ -274,14 +274,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			// look for the latest function call
 			exp.dtype = exp.exp.dtype;
 			hasR = 0;
-<<<<<<< Updated upstream
-			if (matchFunctionToType(level - 1, getType(exp.dtype)) == true) {
-				// System.err.println("Invalid return expression at line " + exp.row + " and
-				// column " + exp.col);
-=======
+
 			if (matchFunctionToType(level - 1, getType(exp.dtype)) == false) {
 				System.err.println("Invalid return expression at line " + exp.row + " and column " + exp.col);
->>>>>>> Stashed changes
+
 			} else if (getType(exp.dtype) == 1) {
 				System.err.println("Unexpected return function found at line " + exp.row + " and column " + exp.col);
 			}
