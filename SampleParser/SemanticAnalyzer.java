@@ -46,9 +46,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		}
 		
 		//DO CHECK HERE
-		if(!(getType(exp.lhs.dtype) == getType(exp.rhs.dtype))){
+		if(getType(exp.lhs.dtype) != getType(exp.rhs.dtype)){
 			System.out.println("Invalid assignment expression at line " + exp.row + " and column " + exp.col);
-			System.out.println("left: " + exp.lhs.dtype + " right: " + exp.rhs.dtype);
 		}
     }
 
@@ -80,6 +79,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		catch(Exception e){
 			System.out.println("Invalid integer expression at line " + exp.row + " and column " + exp.col);
 		}
+		
     }
 
     public void visit(OpExp exp, int level) {
@@ -102,15 +102,38 @@ public class SemanticAnalyzer implements AbsynVisitor {
         exp.variable.accept(this, level);
 		
 		//DO CHECK HERE
-		NameTy type = new NameTy(exp.row, exp.col, 0);
-		exp.dtype = new SimpleDec(exp.row, exp.col, type, exp.variable.name);
+		NameTy type;
 		
-		
-		for(String name: symbolTable.keySet()){
-			for(int i = 0; i < symbolTable.get(name).size(); i++){
-				if(symbolTable.get(name).get(i).name.equals(exp.variable.name)){
-					if(getType(symbolTable.get(name).get(i).def) == 1){
-						System.out.println("Invalid integer value at line " + exp.row + " and column " + exp.col);
+		if(exp.variable instanceof SimpleVar){
+			SimpleVar sv = (SimpleVar) exp.variable; 
+			for(String name: symbolTable.keySet()){
+				for(int i = 0; i < symbolTable.get(name).size(); i++){
+					if(symbolTable.get(name).get(i).name.equals(sv.name)){
+						if(getType(symbolTable.get(name).get(i).def) == 1){
+							type = new NameTy(exp.row, exp.col, 0);
+						}
+						else{
+							type = new NameTy(exp.row, exp.col, 1);
+						}
+						exp.dtype = new SimpleDec(exp.row, exp.col, type, sv.name);
+						break;
+					}
+				}
+			}
+		}
+		else if(exp.variable instanceof IndexVar){
+			IndexVar iv = (IndexVar) exp.variable;
+			for(String name: symbolTable.keySet()){
+				for(int i = 0; i < symbolTable.get(name).size(); i++){
+					if(symbolTable.get(name).get(i).name.equals(iv.name)){
+						if(getType(symbolTable.get(name).get(i).def) == 1){
+							type = new NameTy(exp.row, exp.col, 0);
+						}
+						else{
+							type = new NameTy(exp.row, exp.col, 1);
+						}
+						exp.dtype = new SimpleDec(exp.row, exp.col, type, iv.name);
+						break;
 					}
 				}
 			}
@@ -261,7 +284,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
     }
 
     public void visit(SimpleVar var, int level) {
-		
+
     }
 
     public void visit(WhileExp exp, int level) {

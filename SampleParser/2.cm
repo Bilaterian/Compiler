@@ -1,8 +1,8 @@
-/*declared variables with wrong typing*/
+/*call to non existent function*/
 void main(void) {
     int x;
 	int fac;
-    nontatype a;
-	int3ar[3];
+	
     x = 1 + 1;
+	sendToNew(fac);
 }

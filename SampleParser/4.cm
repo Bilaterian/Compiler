@@ -1,11 +1,7 @@
-/*invalid if statement, nothing in paramaters */
+/*invalid assignment */
 
 void main(void test){
-  int i;
-  i = 2 + 1;
-  if (){
-    /* won't be printed because it is inside of invalid if */
-    int error;
-    error = 1 + 2;
-  }
+  int red;
+  
+  red = 1 + test;
 }
