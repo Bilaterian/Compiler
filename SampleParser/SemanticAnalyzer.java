@@ -54,7 +54,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	public void visit(IfExp exp, int level) {
 		level++;
 		indent(level);
-		System.out.println("Entering a new block: ");
+		System.out.println("Entering a new if-block: ");
 		exp.test.accept(this, level);
 		exp.thenpart.accept(this, level);
 
@@ -65,7 +65,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			level = level - 1;
 		}
 		indent(level);
-		System.out.println("Leaving the block");
+		System.out.println("Leaving the if-block");
 		removeLevel(level);
 	}
 
@@ -222,9 +222,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
 					+ functionDec.func + " is already defined ");
 		}
 		insertNodeToSymbolTable(node);
-		indent(level + 1);
-		System.out.println(functionDec.func + ": (" + getStringFromParams(functionDec.params) + ") -> "
-				+ printType(functionDec.result.typ));
+		// indent(level + 1);
+		// System.out.println(functionDec.func + ": (" +
+		// getStringFromParams(functionDec.params) + ") -> "
+		// + printType(functionDec.result.typ));
 		visit(functionDec.result, level);
 		level++;
 		indent(level);
@@ -245,9 +246,12 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		}
 		hasR = 1;
 
+		removeLevel(level);
+		indent(level);
+		System.out.println(functionDec.func + ": (" + getStringFromParams(functionDec.params) + ") -> "
+				+ printType(functionDec.result.typ));
 		indent(level);
 		System.out.println("Leaving the function scope");
-		removeLevel(level);
 	}
 
 	public void visit(IndexVar indexVar, int level) {
@@ -271,7 +275,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			exp.dtype = exp.exp.dtype;
 			hasR = 0;
 			if (matchFunctionToType(level - 1, getType(exp.dtype)) == true) {
-				System.err.println("Invalid return expression at line " + exp.row + " and column " + exp.col);
+				// System.err.println("Invalid return expression at line " + exp.row + " and
+				// column " + exp.col);
 			} else if (getType(exp.dtype) == 1) {
 				System.err.println("Unexpected return function found at line " + exp.row + " and column " + exp.col);
 			}
@@ -285,8 +290,9 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			// + dec.name + " is already defined ");
 		}
 		insertNodeToSymbolTable(node);
-		indent(level + 1);
-		System.out.println(dec.name + ": " + printType(dec.typ.typ));
+		// indent(level + 1); removed
+
+		// System.out.println(dec.name + ": " + printType(dec.typ.typ));
 		// System.out.println("SimpleDec: " + dec.name);
 
 	}
@@ -305,22 +311,25 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	public void visit(WhileExp exp, int level) {
 		level++;
 		indent(level);
-		System.out.println("Entering a new block: ");
+		System.out.println("Entering a new while-block: ");
 		exp.test.accept(this, level);
 		if (exp.body != null)
 			exp.body.accept(this, level);
-		indent(level);
-		System.out.println("Leaving the block");
 		removeLevel(level);
+		indent(level);
+
+		System.out.println("Leaving the while-block");
+
 	}
 
 	public void visit(ArrayDec dec, int level) {
 
 		NodeType node = new NodeType(dec.name, dec, level);
 		insertNodeToSymbolTable(node);
-		indent(level + 1);
+		// indent(level + 1);
 
-		System.out.println(dec.name + "[" + dec.size.value + "]: " + printType(dec.typ.typ));
+		// System.out.println(dec.name + "[" + dec.size.value + "]: " +
+		// printType(dec.typ.typ));
 
 		// System.out.println("ArrayDec: " + dec.name);
 	}
@@ -359,6 +368,56 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	}
 
 	private void removeLevel(int level) {
+		for (HashMap.Entry<String, ArrayList<NodeType>> entry : symbolTable.entrySet()) {
+			String key = entry.getKey();
+			ArrayList<NodeType> list = entry.getValue();
+
+			for (int i = 0; i < list.size(); i++) {
+				NodeType t = list.get(i);
+
+				if (t.level == level) {
+					indent(level);
+					if (t.def instanceof SimpleDec) {
+						SimpleDec sd = (SimpleDec) t.def;
+						System.out.println(sd.name + " : " + printType(sd.typ.typ));
+					} else if (t.def instanceof ArrayDec) {
+						ArrayDec sd = (ArrayDec) t.def;
+						System.out.println(sd.name + "[" + sd.size.value + "] : " + printType(sd.typ.typ));
+
+					} else if (t.def instanceof FunctionDec) {
+						FunctionDec fd = (FunctionDec) t.def;
+						System.out.println(fd.func + " : " + printType(fd.result.typ));
+
+					}
+
+				}
+			}
+		}
+		for (HashMap.Entry<String, ArrayList<NodeType>> entry : symbolTable.entrySet()) {
+			String key = entry.getKey();
+			ArrayList<NodeType> list = entry.getValue();
+
+			for (int i = 0; i < list.size(); i++) {
+				NodeType t = list.get(i);
+
+				if (t.level == level) {
+					list.remove(i);
+				}
+			}
+		}
+		symbolTable.entrySet().removeIf(entry -> entry.getValue().isEmpty());
+
+	}
+
+	private void removeeLevel(int level) {
+		for (String name : symbolTable.keySet()) {
+			for (int i = 0; i < symbolTable.get(name).size(); i++) {
+				if (symbolTable.get(name).get(i).level == level) {
+					System.out.println(symbolTable.get(name).get(i).name);
+				}
+			}
+		}
+
 		for (String name : symbolTable.keySet()) {
 			for (int i = 0; i < symbolTable.get(name).size(); i++) {
 				if (symbolTable.get(name).get(i).level == level) {
