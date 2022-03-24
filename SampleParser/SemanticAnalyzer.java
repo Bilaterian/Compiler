@@ -12,6 +12,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	}
 
 	final static int SPACES = 4;
+	int hasR = 1;
 
 	private void indent(int level) {
 		for (int i = 0; i < level * SPACES; i++)
@@ -216,7 +217,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
 	public void visit(FunctionDec functionDec, int level) {
 		NodeType node = new NodeType(functionDec.func, functionDec, level);
-
+		if (containsDec(functionDec.func)) {
+			System.err.println("ERROR [row=" + functionDec.row + ", col=" + functionDec.col + "]: "
+					+ functionDec.func + " is already defined ");
+		}
 		insertNodeToSymbolTable(node);
 		indent(level + 1);
 		System.out.println(functionDec.func + ": (" + getStringFromParams(functionDec.params) + ") -> "
@@ -235,6 +239,11 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			}
 		}
 		functionDec.body.accept(this, level);
+		if (functionDec.result.typ != hasR) {
+			System.err.println("ERROR [row=" + functionDec.row + ", col=" + functionDec.col + "]: "
+					+ functionDec.func + " has wrong return type ");
+		}
+		hasR = 1;
 		indent(level);
 		System.out.println("Leaving the function scope");
 		removeLevel(level);
@@ -259,8 +268,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			// DO CHECK HERE
 			// look for the latest function call
 			exp.dtype = exp.exp.dtype;
-
-			if (matchFunctionToType(level - 1, getType(exp.dtype)) == false) {
+			hasR = 0;
+			if (matchFunctionToType(level - 1, getType(exp.dtype)) == true) {
 				System.err.println("Invalid return expression at line " + exp.row + " and column " + exp.col);
 			} else if (getType(exp.dtype) == 1) {
 				System.err.println("Unexpected return function found at line " + exp.row + " and column " + exp.col);
@@ -270,11 +279,22 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
 	public void visit(SimpleDec dec, int level) {
 		NodeType node = new NodeType(dec.name, dec, level);
+		if (containsDec(dec.name)) {
+			System.err.println("ERROR [row=" + dec.row + ", col=" + dec.col + "]: "
+					+ dec.name + " is already defined ");
+		}
 		insertNodeToSymbolTable(node);
 		indent(level + 1);
 		System.out.println(dec.name + ": " + printType(dec.typ.typ));
 		// System.out.println("SimpleDec: " + dec.name);
 
+	}
+
+	public boolean containsDec(String name) {
+		if (symbolTable.get(name) != null && symbolTable.get(name).isEmpty() != true) {
+			return true;
+		}
+		return false;
 	}
 
 	public void visit(SimpleVar var, int level) {
@@ -294,6 +314,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	}
 
 	public void visit(ArrayDec dec, int level) {
+
 		NodeType node = new NodeType(dec.name, dec, level);
 		insertNodeToSymbolTable(node);
 		indent(level + 1);
