@@ -19,10 +19,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			System.out.print(" ");
 	}
 
-	public void visit(ExpList expList, int level) {
+	public void visit(ExpList expList, int level, Boolean isAddress) {
 		while (expList != null) {
 			try {
-				expList.head.accept(this, level);
+				expList.head.accept(this, level, false);
 				expList = expList.tail;
 			} catch (Exception e) {
 				expList = expList.tail;
@@ -30,16 +30,16 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		}
 	}
 
-	public void visit(AssignExp exp, int level) {
-		exp.lhs.accept(this, level);
-		exp.rhs.accept(this, level);
+	public void visit(AssignExp exp, int level, Boolean isAddress) {
+		exp.lhs.accept(this, level, false);
+		exp.rhs.accept(this, level, false);
 
 		if (exp.rhs.dtype instanceof ArrayDec) {
 			ArrayDec temp = (ArrayDec) exp.rhs.dtype;
-			exp.dtype = new ArrayDec(exp.row, exp.col, temp.typ, temp.name, temp.size);
+			exp.dtype = new ArrayDec(exp.row, exp.col, temp.type, temp.name, temp.size);
 		} else if (exp.rhs.dtype instanceof SimpleDec) {
 			SimpleDec temp = (SimpleDec) exp.rhs.dtype;
-			exp.dtype = new SimpleDec(exp.row, exp.col, temp.typ, temp.name);
+			exp.dtype = new SimpleDec(exp.row, exp.col, temp.type, temp.name);
 		} else if (exp.rhs.dtype instanceof FunctionDec) {
 			FunctionDec temp = (FunctionDec) exp.rhs.dtype;
 			exp.dtype = new FunctionDec(exp.row, exp.col, temp.result, temp.func, temp.params, temp.body);
@@ -51,16 +51,16 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		}
 	}
 
-	public void visit(IfExp exp, int level) {
+	public void visit(IfExp exp, int level, Boolean isAddress) {
 		level++;
 		indent(level);
 		System.out.println("Entering a new if-block: ");
-		exp.test.accept(this, level);
-		exp.thenpart.accept(this, level);
+		exp.test.accept(this, level, false);
+		exp.thenpart.accept(this, level, false);
 
 		if (exp.elsepart != null) {
 			level++;
-			exp.elsepart.accept(this, level);
+			exp.elsepart.accept(this, level, false);
 			removeLevel(level);
 			level = level - 1;
 		}
@@ -69,7 +69,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		removeLevel(level);
 	}
 
-	public void visit(IntExp exp, int level) {
+	public void visit(IntExp exp, int level, Boolean isAddress) {
 		NameTy type = new NameTy(exp.row, exp.col, 0);
 		exp.dtype = new SimpleDec(exp.row, exp.col, type, exp.value);
 
@@ -81,10 +81,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
 	}
 
-	public void visit(OpExp exp, int level) {
+	public void visit(OpExp exp, int level, Boolean isAddress) {
 
-		exp.left.accept(this, level);
-		exp.right.accept(this, level);
+		exp.left.accept(this, level, false);
+		exp.right.accept(this, level, false);
 
 		NameTy type = new NameTy(exp.row, exp.col, 0);
 		exp.dtype = new SimpleDec(exp.row, exp.col, type, "null");
@@ -97,8 +97,8 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		}
 	}
 
-	public void visit(VarExp exp, int level) {
-		exp.variable.accept(this, level);
+	public void visit(VarExp exp, int level, Boolean isAddress) {
+		exp.variable.accept(this, level, false);
 
 		// DO CHECK HERE
 		NameTy type;
@@ -136,13 +136,13 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		}
 	}
 
-	public void visit(CallExp exp, int level) {
+	public void visit(CallExp exp, int level, Boolean isAddress) {
 		ArrayList<Integer> checkArgs = new ArrayList<Integer>();
 
 		ExpList args = exp.args;
 		while (args != null) {
 			try {
-				args.head.accept(this, level);
+				args.head.accept(this, level, false);
 				checkArgs.add(new Integer(getType(args.head.dtype)));
 				args = args.tail;
 			} catch (Exception e) {
@@ -165,11 +165,11 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		}
 	}
 
-	public void visit(CompoundExp exp, int level) {
+	public void visit(CompoundExp exp, int level, Boolean isAddress) {
 		VarDecList decs = exp.decs;
 		while (decs != null) {
 			try {
-				decs.head.accept(this, level);
+				decs.head.accept(this, level, false);
 				decs = decs.tail;
 			} catch (Exception e) {
 				decs = decs.tail;
@@ -178,7 +178,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		ExpList exps = exp.exps;
 		while (exps != null) {
 			try {
-				exps.head.accept(this, level);
+				exps.head.accept(this, level, false);
 				exps = exps.tail;
 			} catch (Exception e) {
 				exps = exps.tail;
@@ -187,10 +187,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
 	}
 
-	public void visit(VarDecList varDecList, int level) {
+	public void visit(VarDecList varDecList, int level, Boolean isAddress) {
 		while (varDecList != null) {
 			try {
-				varDecList.head.accept(this, level);
+				varDecList.head.accept(this, level, false);
 				varDecList = varDecList.tail;
 			} catch (Exception e) {
 				varDecList = varDecList.tail;
@@ -198,13 +198,13 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		}
 	}
 
-	public void visit(DecList decList, int level) {
+	public void visit(DecList decList, int level, Boolean isAddress) {
 		if (level == 0) {
 			System.out.println("Entering the global scope:");
 		}
 		while (decList != null) {
 			try {
-				decList.head.accept(this, level);
+				decList.head.accept(this, level, false);
 				decList = decList.tail;
 			} catch (Exception e) {
 				decList = decList.tail;
@@ -215,7 +215,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		}
 	}
 
-	public void visit(FunctionDec functionDec, int level) {
+	public void visit(FunctionDec functionDec, int level, Boolean isAddress) {
 		NodeType node = new NodeType(functionDec.func, functionDec, level);
 		if (containsDec(functionDec.func)) {
 			System.err.println("ERROR [row=" + functionDec.row + ", col=" + functionDec.col + "]: "
@@ -226,20 +226,20 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		// System.out.println(functionDec.func + ": (" +
 		// getStringFromParams(functionDec.params) + ") -> "
 		// + printType(functionDec.result.typ));
-		visit(functionDec.result, level);
+		visit(functionDec.result, level, false);
 		level++;
 		indent(level);
 		System.out.println("Entering the scope for function " + functionDec.func + ": ");
 		VarDecList params = functionDec.params;
 		while (params != null) {
 			try {
-				params.head.accept(this, level);
+				params.head.accept(this, level, false);
 				params = params.tail;
 			} catch (Exception e) {
 				params = params.tail;
 			}
 		}
-		functionDec.body.accept(this, level);
+		functionDec.body.accept(this, level, false);
 		if (functionDec.result.typ != hasR) {
 			System.err.println("ERROR [row=" + functionDec.row + ", col=" + functionDec.col + "]: "
 					+ functionDec.func + " has wrong return type ");
@@ -254,22 +254,22 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		System.out.println("Leaving the function scope");
 	}
 
-	public void visit(IndexVar indexVar, int level) {
-		indexVar.index.accept(this, level);
+	public void visit(IndexVar indexVar, int level, Boolean isAddress) {
+		indexVar.index.accept(this, level, false);
 	}
 
-	public void visit(NameTy nameTy, int level) {
+	public void visit(NameTy nameTy, int level, Boolean isAddress) {
 
 	}
 
-	public void visit(NilExp exp, int level) {
+	public void visit(NilExp exp, int level, Boolean isAddress) {
 		NameTy type = new NameTy(exp.row, exp.col, 1);
 		exp.dtype = new SimpleDec(exp.row, exp.col, type, "null");
 	}
 
-	public void visit(ReturnExp exp, int level) {
+	public void visit(ReturnExp exp, int level, Boolean isAddress) {
 		if (exp.exp != null) {
-			exp.exp.accept(this, level);
+			exp.exp.accept(this, level, false);
 			// DO CHECK HERE
 			// look for the latest function call
 			exp.dtype = exp.exp.dtype;
@@ -284,7 +284,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		}
 	}
 
-	public void visit(SimpleDec dec, int level) {
+	public void visit(SimpleDec dec, int level, Boolean isAddress) {
 		NodeType node = new NodeType(dec.name, dec, level);
 		if (containsDec(dec.name)) {
 			// System.err.println("ERROR [row=" + dec.row + ", col=" + dec.col + "]: "
@@ -298,24 +298,24 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
 	}
 
-	public boolean containsDec(String name) {
+	public Boolean containsDec(String name) {
 		if (symbolTable.get(name) != null && symbolTable.get(name).isEmpty() != true) {
 			return true;
 		}
 		return false;
 	}
 
-	public void visit(SimpleVar var, int level) {
+	public void visit(SimpleVar var, int level, Boolean isAddress) {
 
 	}
 
-	public void visit(WhileExp exp, int level) {
+	public void visit(WhileExp exp, int level, Boolean isAddress) {
 		level++;
 		indent(level);
 		System.out.println("Entering a new while-block: ");
-		exp.test.accept(this, level);
+		exp.test.accept(this, level, false);
 		if (exp.body != null)
-			exp.body.accept(this, level);
+			exp.body.accept(this, level, false);
 		removeLevel(level);
 		indent(level);
 
@@ -323,7 +323,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 
 	}
 
-	public void visit(ArrayDec dec, int level) {
+	public void visit(ArrayDec dec, int level, Boolean isAddress) {
 
 		NodeType node = new NodeType(dec.name, dec, level);
 		insertNodeToSymbolTable(node);
@@ -357,7 +357,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		return null;
 	}
 
-	private boolean hasLevel(int level) {
+	private Boolean hasLevel(int level) {
 		for (String name : symbolTable.keySet()) {
 			for (int i = 0; i < symbolTable.get(name).size(); i++) {
 				if (symbolTable.get(name).get(i).level == level) {
@@ -380,10 +380,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
 					indent(level);
 					if (t.def instanceof SimpleDec) {
 						SimpleDec sd = (SimpleDec) t.def;
-						System.out.println(sd.name + " : " + printType(sd.typ.typ));
+						System.out.println(sd.name + " : " + printType(sd.type.typ));
 					} else if (t.def instanceof ArrayDec) {
 						ArrayDec sd = (ArrayDec) t.def;
-						System.out.println(sd.name + "[" + sd.size.value + "] : " + printType(sd.typ.typ));
+						System.out.println(sd.name + "[" + sd.size.value + "] : " + printType(sd.type.typ));
 
 					} else if (t.def instanceof FunctionDec) {
 						FunctionDec fd = (FunctionDec) t.def;
@@ -444,10 +444,10 @@ public class SemanticAnalyzer implements AbsynVisitor {
 			while (params != null) {
 				try {
 					if (params.head instanceof ArrayDec) {
-						paramString += printType(params.head.typ.typ);
+						paramString += printType(params.head.type.typ);
 						paramString += "[" + ((ArrayDec) params.head).size.value + "]";
 					} else {
-						paramString += printType(params.head.typ.typ);
+						paramString += printType(params.head.type.typ);
 					}
 					paramString += ",";
 					params = params.tail;
@@ -463,14 +463,14 @@ public class SemanticAnalyzer implements AbsynVisitor {
 	private int getType(Dec dtype) {
 		if (dtype instanceof SimpleDec) {
 			SimpleDec sd = (SimpleDec) dtype;
-			if (sd.typ.typ == 0) {
+			if (sd.type.typ == 0) {
 				return NameTy.INT;
 			} else {
 				return NameTy.VOID;
 			}
 		} else if (dtype instanceof ArrayDec) {
 			ArrayDec sd = (ArrayDec) dtype;
-			if (sd.typ.typ == 0) {
+			if (sd.type.typ == 0) {
 				return NameTy.INT;
 			} else {
 				return NameTy.VOID;
@@ -486,7 +486,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		return NameTy.VOID;
 	}
 
-	private boolean ifFunctionExists(String func, ArrayList<Integer> checkArgs) {
+	private Boolean ifFunctionExists(String func, ArrayList<Integer> checkArgs) {
 		if (func.equals("input") || func.equals("output")) {// prebuilt funcitons that we don't control
 			return true;
 		}
@@ -586,7 +586,7 @@ public class SemanticAnalyzer implements AbsynVisitor {
 		return nullNode;
 	}
 
-	private boolean matchFunctionToType(int level, int type) {
+	private Boolean matchFunctionToType(int level, int type) {
 		int latest = 0;
 		for (String name : symbolTable.keySet()) {
 			for (int i = 0; i < symbolTable.get(name).size(); i++) {

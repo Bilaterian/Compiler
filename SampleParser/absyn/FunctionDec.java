@@ -5,6 +5,7 @@ public class FunctionDec extends Dec {
     public String func;
     public VarDecList params;
     public CompoundExp body;
+    public int funaddr;
 
     public FunctionDec(int row, int col, NameTy result, String func, VarDecList params, CompoundExp body) {
         this.row = row;
@@ -13,11 +14,12 @@ public class FunctionDec extends Dec {
         this.func = func;
         this.params = params;
         this.body = body;
+        this.funaddr = -1;
     }
 
-    public void accept(AbsynVisitor visitor, int level) {
-        visitor.visit(this, level);
-    }
+    // public void accept(AbsynVisitor visitor, int level) {
+    // visitor.visit(this, level);
+    // }
 
     public void accept(AbsynVisitor visitor, int offset, Boolean isAddress) {
         visitor.visit(this, offset, isAddress);
