@@ -1,11 +1,11 @@
   To build the parser, type "make" in the current directory, which will 
 generate an executable program called "CM".
 
-  To test source code like "fac.tiny", type 
+  To test source code like "fac.cm", type 
 
-    "java -cp /usr/share/java/cup.jar:. CM fac.cm" 
+    "java -cp /usr/share/java/cup.jar:. CM fac.cm -c" 
 
-and the syntax tree will be displayed on the screen.
+and the tm output will be shown on screen.
 
   To rebuild the parser, type "make clean" and type "make" again.
 
