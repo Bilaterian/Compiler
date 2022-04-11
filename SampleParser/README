@@ -1,6 +1,7 @@
   To build the parser, type "make" in the current directory, which will 
 generate an executable program called "CM".
 
+<<<<<<< HEAD
 To test you can use 
     "java -cp /usr/share/java/cup.jar:. CM fac.cm" 
 along side a flag -s , -a , or -c
@@ -13,3 +14,17 @@ make that and then run the file along side with it
 i.e 
 "/tm fac.tm"
 and the enter g to exucute 
+=======
+  To test source code like "fac.cm", type 
+
+    "java -cp /usr/share/java/cup.jar:. CM fac.cm -c" 
+
+and the tm output will be shown on screen.
+
+  To rebuild the parser, type "make clean" and type "make" again.
+
+	Aside from the java files in absyn that do not share a name with the 
+ones found in the sample package, we recognize that all files here 
+were taken from the sample package and were modified to fit the 
+checkpoint's requirements. 
+>>>>>>> 269114627f6889ad171fd1d584e227d9899d9e69
