@@ -6,6 +6,8 @@ class CM {
   private static boolean hasA = false;
   private static boolean hasS = false;
   private static boolean hasC = false;
+  private static String file;
+  private static String filename;
 
   static public void main(String argv[]) {
     /* Start the parser */
@@ -23,8 +25,11 @@ class CM {
     for (String arg : argv) {
       if (arg.equals("-c")) {
         hasC = true;
+      } else if (arg.length() > 3 && arg.substring(arg.length() - 3).equals(".cm")) {
+        file = arg;
       }
     }
+
     try {
       parser p = new parser(new Lexer(new FileReader(argv[0])));
       PrintStream console = System.out;
@@ -51,7 +56,12 @@ class CM {
 
         CodeGenerator cg = new CodeGenerator();
         result.accept(cg, 0, false);
-        cg.visit(result, "pasanstests.tm");
+        filename = file.substring(file.lastIndexOf('/') + 1, file.lastIndexOf('.'));
+        File tmFile = new File(filename + ".tm");
+        FileOutputStream fp = new FileOutputStream(tmFile);
+        PrintStream ps = new PrintStream(fp);
+        System.setOut(ps);
+        cg.visit(result, filename);
       }
     } catch (Exception e) {
       /* do cleanup here -- possibly rethrow e */

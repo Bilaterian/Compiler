@@ -93,8 +93,8 @@ public class CodeGenerator implements AbsynVisitor {
         emitComment("File: " + fileName);
         emitComment("Standard prelude:");
         emitRM("LD", gp, 0, 0, "load gp with maxaddr");
-        emitRM("LDA", fp, 0, gp, "copy gp to fp");
-        emitRM("ST", 0, 0, 0, "clear content at loc");
+        emitRM("LDA", fp, 0, gp, "Copy gp to fp");
+        emitRM("ST", 0, 0, 0, "Clear content at loc");
         int savedLoc = emitSkip(1);
 
         emitComment("Jump around i/o routines here");
@@ -111,8 +111,6 @@ public class CodeGenerator implements AbsynVisitor {
         emitRM("LDA", pc, 7, pc, "jump around i/o code");
         emitRestore();
         emitComment("End of standard prelude");
-
-        globalOffset = initOF;
 
         visit((DecList) trees, 0, false);
         if (mainEntry == 0) {
@@ -266,9 +264,8 @@ public class CodeGenerator implements AbsynVisitor {
                     // && ((ArrayDec) varDecList.head).size.value != "") {
                     arraySize = Integer.parseInt(((ArrayDec) varDecList.head).size.value);
                     // System.out.println("AMONGUSSSSSSSSSSSSSSSSSS " + arraySize);
-                    // System.out.println("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
-                    // System.out.println("SIZEEEEEEEEEEEEEEEEEE " + ((ArrayDec)
-                    // varDecList.head).size.value);
+                    System.out.println("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+                    System.out.println("SIZEEEEEEEEEEEEEEEEEE " + ((ArrayDec) varDecList.head).size.value);
                     // } else {
                     // System.out.println("SUSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
                     // }
@@ -324,12 +321,8 @@ public class CodeGenerator implements AbsynVisitor {
 
         functionDec.body.accept(this, offset - pcount, false);// body offsets start after params
 
-        // At the end of the function, return to the caller
         emitRM("LD", pc, retOF, fp, "return to caller");
 
-        // At this point, all instructions have been printed for the function and we
-        // know how far to jump
-        // So complete the backpatching for the jump around the function
         int savedLoc2 = emitSkip(0);
         emitBackup(savedLoc);
         emitRM_Abs("LDA", pc, savedLoc2, "jump around " + functionDec.func + " function");

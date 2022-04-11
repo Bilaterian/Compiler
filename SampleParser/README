@@ -1,15 +1,15 @@
   To build the parser, type "make" in the current directory, which will 
 generate an executable program called "CM".
 
-  To test source code like "fac.tiny", type 
-
+To test you can use 
     "java -cp /usr/share/java/cup.jar:. CM fac.cm" 
+along side a flag -s , -a , or -c
+i.e
+    "java -cp /usr/share/java/cup.jar:. CM fac.cm -c" 
 
-and the syntax tree will be displayed on the screen.
-
-  To rebuild the parser, type "make clean" and type "make" again.
-
-	Aside from the java files in absyn that do not share a name with the 
-ones found in the sample package, we recognize that all files here 
-were taken from the sample package and were modified to fit the 
-checkpoint's requirements. 
+When you use -c 
+you can run make it generates a .tm file that you can run by using the TurningMachine simulator
+make that and then run the file along side with it
+i.e 
+"/tm fac.tm"
+and the enter g to exucute 
